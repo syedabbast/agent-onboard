@@ -10,10 +10,10 @@ app.use(cors())
 app.use(express.json())
 
 // ─── Claude (Anthropic) ───────────────────────────────
-async function callClaude(apiKey, systemPrompt, messages) {
+async function callClaude(apiKey, systemPrompt, messages, model) {
   const anthropic = new Anthropic({ apiKey })
   const result = await anthropic.messages.create({
-    model: 'claude-sonnet-4-20250514',
+    model: model || 'claude-sonnet-4-20250514',
     max_tokens: 300,
     system: systemPrompt,
     messages: messages.slice(-10)
@@ -22,10 +22,10 @@ async function callClaude(apiKey, systemPrompt, messages) {
 }
 
 // ─── OpenAI (GPT) / Microsoft Copilot ─────────────────
-async function callOpenAI(apiKey, systemPrompt, messages) {
+async function callOpenAI(apiKey, systemPrompt, messages, model) {
   const openai = new OpenAI({ apiKey })
   const result = await openai.chat.completions.create({
-    model: 'gpt-4o',
+    model: model || 'gpt-4o',
     max_tokens: 300,
     messages: [
       { role: 'system', content: systemPrompt },
@@ -36,10 +36,10 @@ async function callOpenAI(apiKey, systemPrompt, messages) {
 }
 
 // ─── Google Gemini ────────────────────────────────────
-async function callGemini(apiKey, systemPrompt, messages) {
+async function callGemini(apiKey, systemPrompt, messages, model) {
   const genAI = new GoogleGenerativeAI(apiKey)
-  const model = genAI.getGenerativeModel({
-    model: 'gemini-2.0-flash',
+  const geminiModel = genAI.getGenerativeModel({
+    model: model || 'gemini-2.0-flash',
     systemInstruction: systemPrompt
   })
 
@@ -51,17 +51,17 @@ async function callGemini(apiKey, systemPrompt, messages) {
 
   // Last message must be from user
   const lastMsg = history.pop()
-  const chat = model.startChat({ history })
+  const chat = geminiModel.startChat({ history })
   const result = await chat.sendMessage(lastMsg.parts[0].text)
   return result.response.text()
 }
 
 // ─── OpenClaw / LangChain / Other (OpenAI-compatible) ─
-async function callOpenAICompatible(apiKey, systemPrompt, messages) {
+async function callOpenAICompatible(apiKey, systemPrompt, messages, model) {
   // Most open-source / alternative LLMs expose an OpenAI-compatible API
   const openai = new OpenAI({ apiKey })
   const result = await openai.chat.completions.create({
-    model: 'gpt-4o',
+    model: model || 'gpt-4o',
     max_tokens: 300,
     messages: [
       { role: 'system', content: systemPrompt },
@@ -86,7 +86,7 @@ const platformHandlers = {
 // Body: { api_key, platform, system_prompt, messages }
 // Returns: { response: "..." }
 app.post('/api/agent-respond', async (req, res) => {
-  const { api_key, platform, system_prompt, messages } = req.body
+  const { api_key, platform, system_prompt, messages, model } = req.body
 
   if (!api_key || !messages) {
     return res.status(400).json({ error: 'Missing api_key or messages' })
@@ -96,8 +96,8 @@ app.post('/api/agent-respond', async (req, res) => {
   const platformName = platform || 'Unknown'
 
   try {
-    console.log(`🤖 [${platformName}] Generating response...`)
-    const response = await handler(api_key, system_prompt || 'You are a helpful AI agent.', messages)
+    console.log(`🤖 [${platformName}] Generating response${model ? ` with model ${model}` : ''}...`)
+    const response = await handler(api_key, system_prompt || 'You are a helpful AI agent.', messages, model)
     console.log(`✅ [${platformName}] Response generated (${response.length} chars)`)
     res.json({ response })
   } catch (err) {

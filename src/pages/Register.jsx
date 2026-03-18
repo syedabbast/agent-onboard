@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
+import { detectPlatform, getPlatformLabel, getModelsForPlatform } from '../lib/apikeys'
 import Layout from '../components/Layout'
 import { QRCode } from 'react-qr-code'
 import toast from 'react-hot-toast'
@@ -69,13 +70,19 @@ export default function Register() {
       setLoading(false)
       return
     }
+    // Detect platform from API key and set default model
+    const detectedPlatformKey = detectPlatform(form.llm_api_key)
+    const detectedPlatformLabel = detectedPlatformKey ? getPlatformLabel(detectedPlatformKey) : form.llm_platform
+    const defaultModel = detectedPlatformKey ? (getModelsForPlatform(detectedPlatformKey)[0]?.id || null) : null
+
     const { error } = await supabase.from('agents').insert({
       user_id: user.id,
       agent_name: form.agent_name,
       company: form.company,
       agent_type: form.agent_type,
-      llm_platform: form.llm_platform,
+      llm_platform: detectedPlatformLabel || form.llm_platform,
       llm_api_key: form.llm_api_key,
+      llm_model: defaultModel,
       soul_md: form.soul_md || null,
       skill_md: form.skill_md || null,
       user_email: form.user_email || user.email || null,

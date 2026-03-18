@@ -219,6 +219,7 @@ export default function Session() {
         body: JSON.stringify({
           api_key: agent.llm_api_key,
           platform: agent.llm_platform,
+          model: agent.llm_model,
           system_prompt: buildSystemPrompt(agent, myTurns + 1, totalMessages, MAX_AUTO_TURNS, knowledgeRef.current),
           messages: approvedMsgs
         })
@@ -338,6 +339,7 @@ export default function Session() {
         body: JSON.stringify({
           api_key: myAgent.llm_api_key,
           platform: myAgent.llm_platform,
+          model: myAgent.llm_model,
           system_prompt: buildSystemPrompt(myAgent, messages.filter(m => m.sender_agent_id === myAgent.id).length + 1, messages.length, MAX_AUTO_TURNS, knowledgeRef.current),
           messages: approvedMsgs
         })

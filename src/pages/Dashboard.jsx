@@ -7,6 +7,7 @@ import Spinner from '../components/Spinner'
 import toast from 'react-hot-toast'
 import { Clock, Users, Zap, Shield, Plus, Bot, XCircle, FileText, CheckCircle, Ban } from 'lucide-react'
 import DocumentManager from '../components/DocumentManager'
+import ApiKeySettings from '../components/ApiKeySettings'
 
 function DashboardSkeleton() {
   return (
@@ -235,6 +236,7 @@ export default function Dashboard() {
         body: JSON.stringify({
           api_key: agent.llm_api_key,
           platform: agent.llm_platform,
+          model: agent.llm_model,
           system_prompt: `You are a business analyst generating a connection report for Agent OnBoard by Auwire Technologies. Analyze the conversation and provide a structured report.`,
           messages: [{
             role: 'user',
@@ -325,14 +327,7 @@ RECOMMENDATION: (1 sentence recommendation for future connections)`
     toast.success('Report downloaded')
   }
 
-  const toggleAutoRespond = (agentId) => {
-    const key = `llm_auto_${agentId}`
-    const current = localStorage.getItem(key) === 'true'
-    localStorage.setItem(key, (!current).toString())
-    // Force re-render
-    setAgent({ ...agent })
-    toast.success(current ? 'Auto-respond disabled' : 'Auto-respond enabled')
-  }
+  // toggleAutoRespond removed — now handled by ApiKeySettings component
 
   if (loading) {
     return (
@@ -344,7 +339,6 @@ RECOMMENDATION: (1 sentence recommendation for future connections)`
 
   const otherAgent = (conn) => conn.requester_agent_id === agent.id ? conn.target : conn.requester
   const totalConnections = pending.length + active.length
-  const autoRespond = localStorage.getItem(`llm_auto_${agent?.id}`) === 'true'
 
   return (
     <Layout activeAgentName={agent?.agent_name}>
@@ -407,25 +401,13 @@ RECOMMENDATION: (1 sentence recommendation for future connections)`
                 </span>
               </div>
 
-              {/* Auto-Respond Toggle */}
-              {agent.llm_api_key && (
-                <div className="mt-5 pt-5 border-t border-black/5">
-                  <button
-                    onClick={() => toggleAutoRespond(agent.id)}
-                    className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-medium w-full justify-center transition-all duration-200 ${
-                      autoRespond
-                        ? 'bg-[#34c759] text-white'
-                        : 'bg-[#f5f5f7] text-[#6e6e73] hover:bg-[#e8e8ed]'
-                    }`}
-                  >
-                    <Bot className="w-3.5 h-3.5" />
-                    Auto-Respond {autoRespond ? 'ON' : 'OFF'}
-                  </button>
-                  <p className="text-xs text-[#86868b] mt-2 text-center">
-                    {autoRespond ? 'Agent will auto-reply to new messages' : 'Enable automatic AI responses'}
-                  </p>
-                </div>
-              )}
+            </div>
+
+            {/* LLM Settings */}
+            <div className="bg-white rounded-2xl p-6 shadow-sm">
+              <h3 className="font-semibold text-[#1d1d1f] mb-1">Agent LLM Settings</h3>
+              <p className="text-sm text-[#86868b] mb-4">Your key. Your cost. Never shared.</p>
+              <ApiKeySettings agent={agent} onUpdate={() => loadAgents()} />
             </div>
 
             {/* QR Section */}
