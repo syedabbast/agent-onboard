@@ -5,7 +5,7 @@ import Layout from '../components/Layout'
 import QRDisplay from '../components/QRDisplay'
 import Spinner from '../components/Spinner'
 import toast from 'react-hot-toast'
-import { Clock, Users, Zap, Shield, Plus, Bot, XCircle } from 'lucide-react'
+import { Clock, Users, Zap, Shield, Plus, Bot, XCircle, FileText, CheckCircle, Ban } from 'lucide-react'
 
 function DashboardSkeleton() {
   return (
@@ -56,6 +56,10 @@ export default function Dashboard() {
   const [actionLoading, setActionLoading] = useState(null)
   const [revokeTarget, setRevokeTarget] = useState(null)
   const [unapprovedCounts, setUnapprovedCounts] = useState({})
+  const [closedConnections, setClosedConnections] = useState([])
+  const [reportModal, setReportModal] = useState(null)
+  const [reportLoading, setReportLoading] = useState(false)
+  const [reportContent, setReportContent] = useState(null)
   const navigate = useNavigate()
 
   const loadData = async (selectedAgent) => {
@@ -77,6 +81,15 @@ export default function Dashboard() {
       .or(`requester_agent_id.eq.${ag.id},target_agent_id.eq.${ag.id}`)
       .eq('status', 'approved')
     setActive(act || [])
+
+    // Completed + Revoked connections
+    const { data: closed } = await supabase
+      .from('connections')
+      .select('*, requester:agents!connections_requester_agent_id_fkey(*), target:agents!connections_target_agent_id_fkey(*)')
+      .or(`requester_agent_id.eq.${ag.id},target_agent_id.eq.${ag.id}`)
+      .in('status', ['completed', 'revoked'])
+      .order('created_at', { ascending: false })
+    setClosedConnections(closed || [])
 
     // Get unapproved message counts for active connections
     if (act && act.length > 0) {
@@ -174,6 +187,141 @@ export default function Dashboard() {
     setRevokeTarget(null)
     await loadData()
     setActionLoading(null)
+  }
+
+  const generateReport = async (conn) => {
+    setReportModal(conn)
+    setReportLoading(true)
+    setReportContent(null)
+
+    const other = otherAgent(conn)
+
+    // Load all messages for this connection
+    const { data: msgs } = await supabase
+      .from('messages')
+      .select('*')
+      .eq('connection_id', conn.id)
+      .order('created_at', { ascending: true })
+
+    // Load audit entries
+    const { data: audits } = await supabase
+      .from('audit_log')
+      .select('*')
+      .eq('connection_id', conn.id)
+      .order('created_at', { ascending: true })
+
+    if (!agent.llm_api_key || !msgs || msgs.length === 0) {
+      setReportContent({
+        summary: 'No conversation data available for this connection.',
+        outcome: conn.status === 'completed' ? 'Completed' : 'Revoked',
+        messages: msgs?.length || 0,
+        events: audits?.length || 0,
+      })
+      setReportLoading(false)
+      return
+    }
+
+    // Ask LLM to generate a report
+    const convoText = msgs.map(m => {
+      const sender = m.sender_agent_id === agent.id ? agent.agent_name : other?.agent_name
+      return `${sender}: ${m.content}`
+    }).join('\n\n')
+
+    try {
+      const res = await fetch('http://localhost:3001/api/agent-respond', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          api_key: agent.llm_api_key,
+          platform: agent.llm_platform,
+          system_prompt: `You are a business analyst generating a connection report for Agent OnBoard by Auwire Technologies. Analyze the conversation and provide a structured report.`,
+          messages: [{
+            role: 'user',
+            content: `Generate a connection report for this agent-to-agent session.
+
+CONNECTION DETAILS:
+- Agent 1: ${agent.agent_name} (${agent.company}) — ${agent.agent_type}
+- Agent 2: ${other?.agent_name} (${other?.company}) — ${other?.agent_type}
+- Status: ${conn.status}
+- Started: ${new Date(conn.created_at).toLocaleString()}
+- Purpose: ${conn.purpose || 'Not specified'}
+- Total messages: ${msgs.length}
+- Total audit events: ${audits?.length || 0}
+
+FULL CONVERSATION:
+${convoText}
+
+Provide the report in this exact format:
+SUMMARY: (2-3 sentences about what happened)
+OUTCOME: (what was the result — agreement, referral, no match, etc.)
+KEY TOPICS: (comma-separated list of topics discussed)
+ACTION ITEMS: (any follow-ups or next steps mentioned)
+RECOMMENDATION: (1 sentence recommendation for future connections)`
+          }]
+        })
+      })
+
+      if (!res.ok) throw new Error('Report generation failed')
+      const { response } = await res.json()
+
+      // Parse the LLM response into sections
+      const sections = {}
+      const lines = response.split('\n')
+      let currentKey = null
+      for (const line of lines) {
+        const match = line.match(/^(SUMMARY|OUTCOME|KEY TOPICS|ACTION ITEMS|RECOMMENDATION):\s*(.*)/)
+        if (match) {
+          currentKey = match[1]
+          sections[currentKey] = match[2]
+        } else if (currentKey && line.trim()) {
+          sections[currentKey] = (sections[currentKey] || '') + ' ' + line.trim()
+        }
+      }
+
+      setReportContent({
+        summary: sections['SUMMARY'] || response,
+        outcome: sections['OUTCOME'] || (conn.status === 'completed' ? 'Completed' : 'Revoked'),
+        keyTopics: sections['KEY TOPICS'] || '',
+        actionItems: sections['ACTION ITEMS'] || 'None specified',
+        recommendation: sections['RECOMMENDATION'] || '',
+        messages: msgs.length,
+        events: audits?.length || 0,
+        raw: response,
+      })
+    } catch (err) {
+      setReportContent({
+        summary: 'Could not generate AI report. Connection data is still available in the audit trail.',
+        outcome: conn.status === 'completed' ? 'Completed' : 'Revoked',
+        messages: msgs?.length || 0,
+        events: audits?.length || 0,
+      })
+    }
+
+    setReportLoading(false)
+  }
+
+  const downloadReport = () => {
+    if (!reportContent || !reportModal) return
+    const other = otherAgent(reportModal)
+    const report = {
+      connection_id: reportModal.id,
+      status: reportModal.status,
+      agent_1: { name: agent.agent_name, company: agent.company, type: agent.agent_type },
+      agent_2: { name: other?.agent_name, company: other?.company, type: other?.agent_type },
+      created_at: reportModal.created_at,
+      purpose: reportModal.purpose,
+      ...reportContent,
+      generated_at: new Date().toISOString(),
+      generated_by: 'Agent OnBoard by Auwire Technologies',
+    }
+    const blob = new Blob([JSON.stringify(report, null, 2)], { type: 'application/json' })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `report-${reportModal.id.slice(0, 8)}.json`
+    link.click()
+    URL.revokeObjectURL(url)
+    toast.success('Report downloaded')
   }
 
   const toggleAutoRespond = (agentId) => {
@@ -419,9 +567,179 @@ export default function Dashboard() {
                 </div>
               )}
             </div>
+            {/* Closed Connections (Completed + Revoked) */}
+            {closedConnections.length > 0 && (
+              <div>
+                <h3 className="text-lg font-semibold text-[#1d1d1f] tracking-tight mb-3">Past Sessions</h3>
+                <div className="space-y-3">
+                  {closedConnections.map((conn) => {
+                    const other = otherAgent(conn)
+                    return (
+                      <div key={conn.id} className="bg-white rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow duration-200 opacity-90">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <p className="font-semibold text-[#1d1d1f]">{other?.agent_name}</p>
+                              {conn.status === 'completed' ? (
+                                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#34c759]/10 text-[#34c759]">
+                                  <CheckCircle className="w-3 h-3" /> Completed
+                                </span>
+                              ) : (
+                                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#ff3b30]/10 text-[#ff3b30]">
+                                  <Ban className="w-3 h-3" /> Revoked
+                                </span>
+                              )}
+                            </div>
+                            <p className="text-sm text-[#6e6e73]">{other?.company}</p>
+                            <div className="flex gap-2 mt-2 flex-wrap">
+                              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#0071e3]/10 text-[#0071e3]">{other?.agent_type}</span>
+                              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-500/10 text-purple-600">{other?.llm_platform}</span>
+                            </div>
+                            {conn.purpose && <p className="text-xs text-[#86868b] mt-1 italic">"{conn.purpose}"</p>}
+                            <p className="text-xs text-[#86868b] mt-1">{timeAgo(conn.created_at)}</p>
+                          </div>
+                          <div className="flex gap-2 flex-shrink-0">
+                            <button
+                              onClick={() => generateReport(conn)}
+                              className="bg-[#0071e3] hover:bg-[#0077ED] text-white rounded-full px-5 py-2 text-sm font-medium transition-all duration-200 flex items-center gap-1.5"
+                            >
+                              <FileText className="w-3.5 h-3.5" />
+                              Report
+                            </button>
+                            <button
+                              onClick={() => navigate(`/audit/${conn.id}`)}
+                              className="bg-[#f5f5f7] hover:bg-[#e8e8ed] text-[#1d1d1f] rounded-full px-5 py-2 text-sm font-medium transition-all duration-200"
+                            >
+                              Audit
+                            </button>
+                            <button
+                              onClick={() => navigate(`/session/${conn.id}`)}
+                              className="bg-[#f5f5f7] hover:bg-[#e8e8ed] text-[#1d1d1f] rounded-full px-5 py-2 text-sm font-medium transition-all duration-200"
+                            >
+                              View
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
+
+      {/* Report Modal */}
+      {reportModal && (
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 px-4">
+          <div className="bg-white rounded-2xl p-6 max-w-2xl w-full shadow-2xl max-h-[80vh] overflow-y-auto">
+            <div className="flex items-center justify-between mb-5">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-[#0071e3]/10 flex items-center justify-center">
+                  <FileText className="w-5 h-5 text-[#0071e3]" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-[#1d1d1f]">Connection Report</h3>
+                  <p className="text-xs text-[#86868b]">{reportModal.id.slice(0, 8)} — {otherAgent(reportModal)?.agent_name}</p>
+                </div>
+              </div>
+              <button
+                onClick={() => { setReportModal(null); setReportContent(null) }}
+                className="text-[#86868b] hover:text-[#1d1d1f] transition-colors"
+              >
+                <XCircle className="w-5 h-5" />
+              </button>
+            </div>
+
+            {reportLoading ? (
+              <div className="py-12 text-center">
+                <div className="w-8 h-8 border-[3px] border-[#0071e3]/20 border-t-[#0071e3] rounded-full animate-spin mx-auto mb-3" />
+                <p className="text-[#6e6e73] text-sm">Generating report...</p>
+              </div>
+            ) : reportContent ? (
+              <div className="space-y-4">
+                {/* Stats */}
+                <div className="grid grid-cols-3 gap-3">
+                  <div className="bg-[#f5f5f7] rounded-xl p-3 text-center">
+                    <p className="text-2xl font-bold text-[#1d1d1f]">{reportContent.messages}</p>
+                    <p className="text-xs text-[#86868b]">Messages</p>
+                  </div>
+                  <div className="bg-[#f5f5f7] rounded-xl p-3 text-center">
+                    <p className="text-2xl font-bold text-[#1d1d1f]">{reportContent.events}</p>
+                    <p className="text-xs text-[#86868b]">Events</p>
+                  </div>
+                  <div className={`rounded-xl p-3 text-center ${reportModal.status === 'completed' ? 'bg-[#34c759]/10' : 'bg-[#ff3b30]/10'}`}>
+                    <p className={`text-lg font-bold capitalize ${reportModal.status === 'completed' ? 'text-[#34c759]' : 'text-[#ff3b30]'}`}>{reportModal.status}</p>
+                    <p className="text-xs text-[#86868b]">Status</p>
+                  </div>
+                </div>
+
+                {/* Summary */}
+                <div className="bg-[#f5f5f7] rounded-xl p-4">
+                  <p className="text-xs font-medium text-[#86868b] uppercase tracking-wider mb-1">Summary</p>
+                  <p className="text-sm text-[#1d1d1f]">{reportContent.summary}</p>
+                </div>
+
+                {/* Outcome */}
+                {reportContent.outcome && (
+                  <div className="bg-[#f5f5f7] rounded-xl p-4">
+                    <p className="text-xs font-medium text-[#86868b] uppercase tracking-wider mb-1">Outcome</p>
+                    <p className="text-sm text-[#1d1d1f]">{reportContent.outcome}</p>
+                  </div>
+                )}
+
+                {/* Key Topics */}
+                {reportContent.keyTopics && (
+                  <div className="bg-[#f5f5f7] rounded-xl p-4">
+                    <p className="text-xs font-medium text-[#86868b] uppercase tracking-wider mb-2">Key Topics</p>
+                    <div className="flex flex-wrap gap-2">
+                      {reportContent.keyTopics.split(',').map((topic, i) => (
+                        <span key={i} className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-white text-[#1d1d1f]">
+                          {topic.trim()}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Action Items */}
+                {reportContent.actionItems && (
+                  <div className="bg-[#f5f5f7] rounded-xl p-4">
+                    <p className="text-xs font-medium text-[#86868b] uppercase tracking-wider mb-1">Action Items</p>
+                    <p className="text-sm text-[#1d1d1f]">{reportContent.actionItems}</p>
+                  </div>
+                )}
+
+                {/* Recommendation */}
+                {reportContent.recommendation && (
+                  <div className="bg-[#0071e3]/5 rounded-xl p-4">
+                    <p className="text-xs font-medium text-[#0071e3] uppercase tracking-wider mb-1">Recommendation</p>
+                    <p className="text-sm text-[#1d1d1f]">{reportContent.recommendation}</p>
+                  </div>
+                )}
+
+                {/* Actions */}
+                <div className="flex gap-3 pt-2">
+                  <button
+                    onClick={downloadReport}
+                    className="bg-[#0071e3] hover:bg-[#0077ED] text-white rounded-full px-5 py-2.5 text-sm font-medium transition-all duration-200 flex items-center gap-1.5"
+                  >
+                    <FileText className="w-4 h-4" />
+                    Download Report
+                  </button>
+                  <button
+                    onClick={() => navigate(`/audit/${reportModal.id}`)}
+                    className="bg-[#f5f5f7] hover:bg-[#e8e8ed] text-[#1d1d1f] rounded-full px-5 py-2.5 text-sm font-medium transition-all duration-200"
+                  >
+                    View Full Audit
+                  </button>
+                </div>
+              </div>
+            ) : null}
+          </div>
+        </div>
+      )}
 
       {/* Revoke Confirmation Modal */}
       {revokeTarget && (
