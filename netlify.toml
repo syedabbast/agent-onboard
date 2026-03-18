@@ -2,19 +2,12 @@
   command = "npm run build"
   publish = "dist"
 
-# Serve landing page at root
 [[redirects]]
   from = "/"
   to = "/landing.html"
   status = 200
+  force = true
 
-# Serve landing page explicitly
-[[redirects]]
-  from = "/landing"
-  to = "/landing.html"
-  status = 200
-
-# All other routes → React SPA
 [[redirects]]
   from = "/*"
   to = "/index.html"
