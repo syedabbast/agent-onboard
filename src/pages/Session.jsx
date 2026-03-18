@@ -1,10 +1,10 @@
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState, useRef, useCallback } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { supabase, getMyAgent, logAudit } from '../lib/supabase'
+import { supabase, getMyAgent, logAudit, sendNotification, timeAgo } from '../lib/supabase'
 import Layout from '../components/Layout'
 import Spinner from '../components/Spinner'
 import toast from 'react-hot-toast'
-import { Clock, Lock, Bot } from 'lucide-react'
+import { Clock, Lock, Bot, XCircle, AlertTriangle } from 'lucide-react'
 
 const API_URL = 'http://localhost:3001'
 
@@ -29,6 +29,39 @@ RULES:
   return prompt
 }
 
+function SessionSkeleton() {
+  return (
+    <div className="max-w-4xl mx-auto px-4 py-4">
+      <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm mb-4 animate-pulse">
+        <div className="flex items-center justify-between">
+          <div>
+            <div className="h-5 bg-gray-200 rounded w-32 mb-2" />
+            <div className="h-4 bg-gray-200 rounded-full w-20" />
+          </div>
+          <div className="h-4 bg-gray-200 rounded w-24" />
+          <div className="text-right">
+            <div className="h-5 bg-gray-200 rounded w-32 mb-2 ml-auto" />
+            <div className="h-4 bg-gray-200 rounded-full w-20 ml-auto" />
+          </div>
+        </div>
+      </div>
+      <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden animate-pulse">
+        <div className="min-h-[400px] p-4 space-y-4">
+          <div className="flex justify-start">
+            <div className="h-12 bg-gray-200 rounded-xl w-2/3" />
+          </div>
+          <div className="flex justify-end">
+            <div className="h-12 bg-gray-200 rounded-xl w-1/2" />
+          </div>
+          <div className="flex justify-start">
+            <div className="h-16 bg-gray-200 rounded-xl w-3/5" />
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export default function Session() {
   const { id } = useParams()
   const navigate = useNavigate()
@@ -41,7 +74,11 @@ export default function Session() {
   const [sending, setSending] = useState(false)
   const [aiMode, setAiMode] = useState(false)
   const [aiThinking, setAiThinking] = useState(false)
+  const [showRevokeModal, setShowRevokeModal] = useState(false)
+  const [revoking, setRevoking] = useState(false)
   const messagesEndRef = useRef(null)
+  const autoRespondingRef = useRef(false)
+  const prevMessageCountRef = useRef(0)
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -54,6 +91,7 @@ export default function Session() {
       .eq('connection_id', connId)
       .order('created_at', { ascending: true })
     setMessages(data || [])
+    return data || []
   }
 
   useEffect(() => {
@@ -79,11 +117,76 @@ export default function Session() {
       setConnection(conn)
       setOtherAgent(conn.requester_agent_id === mine.id ? conn.target : conn.requester)
       setAiMode(!!mine.llm_api_key)
-      await loadMessages(conn.id)
+      const msgs = await loadMessages(conn.id)
+      prevMessageCountRef.current = msgs.length
       setLoading(false)
     }
     load()
   }, [id])
+
+  // Auto-respond logic
+  const handleAutoRespond = useCallback(async (currentMessages, agent, conn) => {
+    if (!agent || !conn) return
+    if (autoRespondingRef.current) return
+
+    const isAutoEnabled = localStorage.getItem(`llm_auto_${agent.id}`) === 'true'
+    if (!isAutoEnabled) return
+    if (!agent.llm_api_key) return
+
+    // Check if latest message is from the other agent
+    const lastMsg = currentMessages[currentMessages.length - 1]
+    if (!lastMsg || lastMsg.sender_agent_id === agent.id) return
+
+    autoRespondingRef.current = true
+    setAiThinking(true)
+
+    const approvedMsgs = currentMessages
+      .filter(m => m.approved)
+      .map(m => ({
+        role: m.sender_agent_id === agent.id ? 'assistant' : 'user',
+        content: m.content
+      }))
+
+    if (approvedMsgs.length === 0) {
+      approvedMsgs.push({ role: 'user', content: 'Hello, I would like to connect and collaborate.' })
+    }
+
+    try {
+      const res = await fetch(`${API_URL}/api/agent-respond`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          api_key: agent.llm_api_key,
+          platform: agent.llm_platform,
+          system_prompt: buildSystemPrompt(agent),
+          messages: approvedMsgs
+        })
+      })
+
+      if (!res.ok) {
+        const err = await res.json()
+        throw new Error(err.error || 'API call failed')
+      }
+
+      const { response } = await res.json()
+
+      await supabase.from('messages').insert({
+        connection_id: conn.id,
+        sender_agent_id: agent.id,
+        content: response,
+        message_type: 'agent_response',
+        approved: true,
+      })
+
+      await logAudit(conn.id, agent.id, 'message_sent', { source: 'ai_auto_respond' })
+      toast.success('Agent responded automatically', { icon: '🤖' })
+    } catch (err) {
+      console.warn('Auto-respond failed:', err.message)
+    }
+
+    setAiThinking(false)
+    autoRespondingRef.current = false
+  }, [])
 
   // Realtime subscriptions
   useEffect(() => {
@@ -91,8 +194,16 @@ export default function Session() {
 
     const msgChannel = supabase
       .channel(`session-messages-${id}`)
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages', filter: `connection_id=eq.${id}` }, () => {
-        loadMessages(id)
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages', filter: `connection_id=eq.${id}` }, async () => {
+        const newMsgs = await loadMessages(id)
+        // Only auto-respond if we got a genuinely new message from the other party
+        if (newMsgs.length > prevMessageCountRef.current && myAgent && connection) {
+          const lastMsg = newMsgs[newMsgs.length - 1]
+          if (lastMsg && lastMsg.sender_agent_id !== myAgent.id) {
+            handleAutoRespond(newMsgs, myAgent, connection)
+          }
+        }
+        prevMessageCountRef.current = newMsgs.length
       })
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'messages', filter: `connection_id=eq.${id}` }, () => {
         loadMessages(id)
@@ -115,7 +226,7 @@ export default function Session() {
       supabase.removeChannel(msgChannel)
       supabase.removeChannel(connChannel)
     }
-  }, [connection?.id])
+  }, [connection?.id, myAgent?.id, handleAutoRespond])
 
   // Auto-scroll
   useEffect(() => { scrollToBottom() }, [messages])
@@ -171,6 +282,11 @@ export default function Session() {
 
       await logAudit(connection.id, myAgent.id, 'message_sent', { source: 'ai_agent' })
       toast.success('AI response sent!')
+
+      // Send notification to the other agent
+      if (otherAgent?.user_email) {
+        sendNotification('new_message', otherAgent.user_email, myAgent.agent_name, myAgent.company, connection.id)
+      }
     } catch (err) {
       toast.error(`AI error: ${err.message}`)
     }
@@ -189,6 +305,12 @@ export default function Session() {
       approved: true,
     })
     await logAudit(connection.id, myAgent.id, 'message_sent')
+
+    // Send notification to the other agent
+    if (otherAgent?.user_email) {
+      sendNotification('new_message', otherAgent.user_email, myAgent.agent_name, myAgent.company, connection.id)
+    }
+
     setNewMsg('')
     setSending(false)
   }
@@ -206,12 +328,49 @@ export default function Session() {
     }
   }
 
-  if (loading) return <Layout><Spinner /></Layout>
+  const revokeConnection = async () => {
+    setRevoking(true)
+    await supabase.from('connections').update({ status: 'revoked' }).eq('id', connection.id)
+    await logAudit(connection.id, myAgent.id, 'connection_revoked')
+    toast.success('Connection revoked')
+    setShowRevokeModal(false)
+    setRevoking(false)
+    navigate('/')
+  }
+
+  if (loading) {
+    return (
+      <Layout>
+        <SessionSkeleton />
+      </Layout>
+    )
+  }
+
+  // Revoked state
+  if (connection.status === 'revoked') {
+    return (
+      <Layout activeAgentName={myAgent?.agent_name}>
+        <div className="max-w-4xl mx-auto px-4 py-4">
+          <div className="bg-red-50 border border-red-200 rounded-xl p-6 text-center">
+            <AlertTriangle className="w-12 h-12 mx-auto text-red-500 mb-3" />
+            <h2 className="text-xl font-bold text-[#0f172a] mb-2">Connection Revoked</h2>
+            <p className="text-[#64748b] mb-4">This connection has been revoked. No further messages can be sent.</p>
+            <button
+              onClick={() => navigate('/')}
+              className="bg-[#1a4d8f] text-white rounded-lg px-6 py-2 text-sm font-medium hover:opacity-90"
+            >
+              Return to Dashboard
+            </button>
+          </div>
+        </div>
+      </Layout>
+    )
+  }
 
   // Pending state
   if (connection.status === 'pending') {
     return (
-      <Layout>
+      <Layout activeAgentName={myAgent?.agent_name}>
         <div className="flex items-center justify-center min-h-[60vh]">
           <div className="text-center">
             <Clock className="w-16 h-16 mx-auto text-gray-300 mb-4" />
@@ -224,8 +383,10 @@ export default function Session() {
     )
   }
 
+  const autoRespondEnabled = localStorage.getItem(`llm_auto_${myAgent?.id}`) === 'true'
+
   return (
-    <Layout>
+    <Layout activeAgentName={myAgent?.agent_name}>
       <div className="max-w-4xl mx-auto px-4 py-4">
         {/* Header bar */}
         <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm mb-4">
@@ -243,29 +404,46 @@ export default function Session() {
               <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-orange-50 text-[#8f3a1a]">{otherAgent?.llm_platform}</span>
             </div>
           </div>
-          <div className="flex items-center justify-between mt-2">
-            {myAgent.llm_api_key && (
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => setAiMode(!aiMode)}
-                  className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                    aiMode
-                      ? 'bg-[#2d6b4a] text-white'
-                      : 'border border-gray-200 text-[#64748b] hover:bg-gray-50'
-                  }`}
-                >
-                  <Bot className="w-3.5 h-3.5" />
-                  AI Mode {aiMode ? 'ON' : 'OFF'}
-                </button>
-                {aiMode && <span className="text-xs text-[#64748b]">Your agent will think using Claude</span>}
-              </div>
-            )}
-            <button
-              onClick={() => navigate(`/audit/${id}`)}
-              className="border border-gray-200 rounded-lg px-3 py-1.5 text-xs hover:bg-gray-50"
-            >
-              Audit Log
-            </button>
+          <div className="flex items-center justify-between mt-2 flex-wrap gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
+              {myAgent.llm_api_key && (
+                <>
+                  <button
+                    onClick={() => setAiMode(!aiMode)}
+                    className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                      aiMode
+                        ? 'bg-[#2d6b4a] text-white'
+                        : 'border border-gray-200 text-[#64748b] hover:bg-gray-50'
+                    }`}
+                  >
+                    <Bot className="w-3.5 h-3.5" />
+                    AI Mode {aiMode ? 'ON' : 'OFF'}
+                  </button>
+                  {autoRespondEnabled && (
+                    <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-purple-50 text-purple-700">
+                      <Bot className="w-3 h-3" />
+                      Auto-Respond ON
+                    </span>
+                  )}
+                  {aiMode && !autoRespondEnabled && <span className="text-xs text-[#64748b]">Your agent will think using Claude</span>}
+                </>
+              )}
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setShowRevokeModal(true)}
+                className="border border-red-200 text-red-600 rounded-lg px-3 py-1.5 text-xs hover:bg-red-50 flex items-center gap-1"
+              >
+                <XCircle className="w-3.5 h-3.5" />
+                Revoke Connection
+              </button>
+              <button
+                onClick={() => navigate(`/audit/${id}`)}
+                className="border border-gray-200 rounded-lg px-3 py-1.5 text-xs hover:bg-gray-50"
+              >
+                Audit Log
+              </button>
+            </div>
           </div>
         </div>
 
@@ -381,6 +559,44 @@ export default function Session() {
           Secured by Agent OnBoard — auwiretech.com — All messages logged and auditable
         </div>
       </div>
+
+      {/* Revoke Confirmation Modal */}
+      {showRevokeModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4">
+          <div className="bg-white rounded-xl p-6 max-w-md w-full shadow-xl">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0">
+                <XCircle className="w-5 h-5 text-red-600" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-[#0f172a]">Revoke Connection</h3>
+                <p className="text-sm text-[#64748b]">
+                  This will end your connection with{' '}
+                  <span className="font-medium text-[#0f172a]">{otherAgent?.agent_name}</span>
+                </p>
+              </div>
+            </div>
+            <p className="text-sm text-[#64748b] mb-4">
+              This action cannot be undone. No further messages can be sent in this session.
+            </p>
+            <div className="flex gap-2 justify-end">
+              <button
+                onClick={() => setShowRevokeModal(false)}
+                className="border border-gray-200 rounded-lg px-4 py-2 text-sm hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={revokeConnection}
+                disabled={revoking}
+                className="bg-red-600 text-white rounded-lg px-4 py-2 text-sm hover:opacity-90 disabled:opacity-50"
+              >
+                {revoking ? 'Revoking...' : 'Revoke Connection'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </Layout>
   )
 }

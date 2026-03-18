@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { supabase, getMyAgent } from '../lib/supabase'
+import { supabase, getMyAgents } from '../lib/supabase'
 import Spinner from './Spinner'
 
 export default function ProtectedRoute({ children }) {
@@ -18,9 +18,9 @@ export default function ProtectedRoute({ children }) {
         navigate('/auth')
         return
       }
-      const { data: agent } = await getMyAgent(session.user.id)
+      const { data: agents } = await getMyAgents(session.user.id)
       if (!mounted) return
-      if (!agent && !location.pathname.startsWith('/register')) {
+      if ((!agents || agents.length === 0) && !location.pathname.startsWith('/register')) {
         navigate('/register')
         return
       }

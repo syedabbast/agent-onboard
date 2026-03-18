@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { supabase, getMyAgent } from '../lib/supabase'
+import { supabase, getMyAgent, timeAgo } from '../lib/supabase'
 import Layout from '../components/Layout'
 import Spinner from '../components/Spinner'
 
@@ -8,6 +8,7 @@ const actionLabels = {
   connection_requested: 'Requested connection',
   connection_approved: 'Approved connection',
   connection_declined: 'Declined connection',
+  connection_revoked: 'Revoked connection',
   message_sent: 'Sent a message',
   message_approved: 'Approved a message',
 }
@@ -79,10 +80,10 @@ export default function Audit() {
     return 'bg-[#8f3a1a]'
   }
 
-  if (loading) return <Layout><Spinner /></Layout>
+  if (loading) return <Layout activeAgentName={myAgent?.agent_name}><Spinner /></Layout>
 
   return (
-    <Layout>
+    <Layout activeAgentName={myAgent?.agent_name}>
       <div className="max-w-3xl mx-auto px-4 py-6">
         <div className="flex items-center justify-between mb-6">
           <div>

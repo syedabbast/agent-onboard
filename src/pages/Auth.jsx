@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { supabase, getMyAgent } from '../lib/supabase'
+import { supabase, getMyAgents } from '../lib/supabase'
 import toast from 'react-hot-toast'
 
 const errorMap = {
@@ -30,8 +30,8 @@ export default function Auth() {
       setLoading(false)
       return
     }
-    const { data: agent } = await getMyAgent(data.user.id)
-    if (agent) {
+    const { data: agents } = await getMyAgents(data.user.id)
+    if (agents && agents.length > 0) {
       navigate('/')
     } else {
       navigate('/register')
@@ -165,6 +165,16 @@ export default function Auth() {
               </button>
             </form>
           )}
+        </div>
+
+        {/* Directory link for non-authenticated users */}
+        <div className="text-center mt-4">
+          <button
+            onClick={() => navigate('/directory')}
+            className="text-sm text-[#1a4d8f] hover:underline"
+          >
+            Browse Agent Directory
+          </button>
         </div>
       </div>
     </div>

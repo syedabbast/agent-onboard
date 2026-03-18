@@ -4,6 +4,7 @@ import { supabase } from '../lib/supabase'
 import Layout from '../components/Layout'
 import { QRCode } from 'react-qr-code'
 import toast from 'react-hot-toast'
+import { CheckCircle } from 'lucide-react'
 
 const agentTypes = [
   'Employer / Hiring',
@@ -28,6 +29,7 @@ const llmPlatforms = [
 export default function Register() {
   const [step, setStep] = useState(1)
   const [loading, setLoading] = useState(false)
+  const [success, setSuccess] = useState(false)
   const [form, setForm] = useState({
     agent_name: '',
     company: '',
@@ -36,6 +38,7 @@ export default function Register() {
     llm_api_key: '',
     soul_md: '',
     skill_md: '',
+    user_email: '',
   })
   const navigate = useNavigate()
 
@@ -75,6 +78,7 @@ export default function Register() {
       llm_api_key: form.llm_api_key,
       soul_md: form.soul_md || null,
       skill_md: form.skill_md || null,
+      user_email: form.user_email || user.email || null,
     })
     if (error) {
       toast.error(error.message)
@@ -82,11 +86,57 @@ export default function Register() {
       return
     }
     toast.success('Your agent is live!')
-    navigate('/')
+    setSuccess(true)
     setLoading(false)
   }
 
   const previewUrl = `${import.meta.env.VITE_APP_URL}/connect?token=preview`
+
+  if (success) {
+    return (
+      <Layout>
+        <div className="max-w-2xl mx-auto px-4 py-12">
+          <div className="bg-white border border-gray-200 rounded-xl p-8 shadow-sm text-center">
+            <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4">
+              <CheckCircle className="w-8 h-8 text-[#2d6b4a]" />
+            </div>
+            <h2 className="text-2xl font-bold text-[#0f172a] mb-2">Agent Launched Successfully!</h2>
+            <p className="text-[#64748b] mb-1">
+              <span className="font-medium text-[#0f172a]">{form.agent_name}</span> is now live on Agent OnBoard.
+            </p>
+            <p className="text-sm text-[#64748b] mb-6">Share your QR code to start receiving connection requests.</p>
+            <div className="flex gap-3 justify-center flex-wrap">
+              <button
+                onClick={() => navigate('/')}
+                className="bg-[#1a4d8f] text-white rounded-lg px-6 py-2.5 text-sm font-medium hover:opacity-90"
+              >
+                Go to Dashboard
+              </button>
+              <button
+                onClick={() => {
+                  setSuccess(false)
+                  setStep(1)
+                  setForm({
+                    agent_name: '',
+                    company: '',
+                    agent_type: '',
+                    llm_platform: '',
+                    llm_api_key: '',
+                    soul_md: '',
+                    skill_md: '',
+                    user_email: '',
+                  })
+                }}
+                className="border border-gray-200 rounded-lg px-6 py-2.5 text-sm font-medium hover:bg-gray-50"
+              >
+                Create Another Agent
+              </button>
+            </div>
+          </div>
+        </div>
+      </Layout>
+    )
+  }
 
   return (
     <Layout>
@@ -157,6 +207,17 @@ export default function Register() {
               />
               <p className="text-xs text-[#64748b] mt-1">Your API key powers your agent's AI responses. Stored securely, never shared.</p>
             </div>
+            <div>
+              <label className="block text-sm font-medium text-[#0f172a] mb-1">Notification Email</label>
+              <input
+                type="email"
+                value={form.user_email}
+                onChange={update('user_email')}
+                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#1a4d8f]"
+                placeholder="you@example.com"
+              />
+              <p className="text-xs text-[#64748b] mt-1">Receive email notifications for connection requests and messages. Optional.</p>
+            </div>
           </div>
         )}
 
@@ -212,8 +273,14 @@ export default function Register() {
               </div>
               <div className="flex justify-between">
                 <span className="text-sm text-[#64748b]">API Key</span>
-                <span className="text-sm font-medium text-[#0f172a] font-mono">{form.llm_api_key.slice(0, 8)}{'•'.repeat(12)}</span>
+                <span className="text-sm font-medium text-[#0f172a] font-mono">{form.llm_api_key.slice(0, 8)}{'*'.repeat(12)}</span>
               </div>
+              {form.user_email && (
+                <div className="flex justify-between">
+                  <span className="text-sm text-[#64748b]">Notification Email</span>
+                  <span className="text-sm font-medium text-[#0f172a]">{form.user_email}</span>
+                </div>
+              )}
             </div>
             <div className="flex justify-center py-4">
               <div className="bg-white border border-gray-200 rounded-xl p-6 inline-block">

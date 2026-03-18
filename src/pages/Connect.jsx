@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useSearchParams, useNavigate } from 'react-router-dom'
-import { supabase, getAgentByToken, getMyAgent, logAudit } from '../lib/supabase'
+import { supabase, getAgentByToken, getMyAgent, logAudit, sendNotification } from '../lib/supabase'
 import Spinner from '../components/Spinner'
 import toast from 'react-hot-toast'
 import { Shield } from 'lucide-react'
@@ -98,6 +98,11 @@ export default function Connect() {
     })
 
     await logAudit(conn.id, myAgent.id, 'connection_requested', { target: targetAgent.agent_name })
+
+    // Send notification to target agent
+    if (targetAgent.user_email) {
+      sendNotification('connection_request', targetAgent.user_email, myAgent.agent_name, myAgent.company, conn.id)
+    }
 
     setSent(true)
     setSending(false)
