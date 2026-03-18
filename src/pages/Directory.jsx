@@ -4,13 +4,13 @@ import { supabase } from '../lib/supabase'
 import { Search, Shield, Users } from 'lucide-react'
 
 const typeColors = {
-  'Employer / Hiring': '#1a4d8f',
+  'Employer / Hiring': '#0071e3',
   'Staffing Agency': '#7c3aed',
-  'Legal / Paralegal': '#b45309',
-  'Medical Practice': '#16a34a',
-  'Solopreneur': '#8f3a1a',
+  'Legal / Paralegal': '#ff9500',
+  'Medical Practice': '#34c759',
+  'Solopreneur': '#ff3b30',
   'Procurement': '#0891b2',
-  'Other': '#64748b',
+  'Other': '#86868b',
 }
 
 const agentTypes = [
@@ -39,23 +39,23 @@ function getInitials(name) {
 
 function SkeletonCard() {
   return (
-    <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm animate-pulse">
+    <div className="bg-white rounded-2xl p-6 shadow-sm animate-pulse">
       <div className="flex items-center gap-4 mb-4">
-        <div className="w-14 h-14 rounded-full bg-gray-200" />
+        <div className="w-14 h-14 rounded-full bg-[#f5f5f7]" />
         <div className="flex-1">
-          <div className="h-4 bg-gray-200 rounded w-2/3 mb-2" />
-          <div className="h-3 bg-gray-200 rounded w-1/2" />
+          <div className="h-4 bg-[#f5f5f7] rounded-xl w-2/3 mb-2" />
+          <div className="h-3 bg-[#f5f5f7] rounded-xl w-1/2" />
         </div>
       </div>
       <div className="flex gap-2 mb-3">
-        <div className="h-6 bg-gray-200 rounded-full w-24" />
-        <div className="h-6 bg-gray-200 rounded-full w-20" />
+        <div className="h-7 bg-[#f5f5f7] rounded-full w-24" />
+        <div className="h-7 bg-[#f5f5f7] rounded-full w-20" />
       </div>
-      <div className="h-3 bg-gray-200 rounded w-full mb-2" />
-      <div className="h-3 bg-gray-200 rounded w-3/4 mb-4" />
-      <div className="flex gap-2">
-        <div className="h-8 bg-gray-200 rounded-lg flex-1" />
-        <div className="h-8 bg-gray-200 rounded-lg flex-1" />
+      <div className="h-3 bg-[#f5f5f7] rounded-xl w-full mb-2" />
+      <div className="h-3 bg-[#f5f5f7] rounded-xl w-3/4 mb-5" />
+      <div className="flex gap-3">
+        <div className="h-9 bg-[#f5f5f7] rounded-full flex-1" />
+        <div className="h-9 bg-[#f5f5f7] rounded-full flex-1" />
       </div>
     </div>
   )
@@ -103,53 +103,55 @@ export default function Directory() {
   })
 
   return (
-    <div className="min-h-screen bg-[#f8fafc]">
+    <div className="min-h-screen bg-[#f5f5f7]">
       {/* Nav */}
-      <nav className="flex items-center justify-between px-6 py-3 border-b border-gray-200 bg-white">
-        <div className="flex items-center gap-2">
-          <div className="w-3 h-3 rounded-full bg-[#2d6b4a]" />
-          <span className="font-bold text-[#0f172a] text-lg">Agent OnBoard</span>
-          <span className="text-sm text-[#64748b]">by Auwire Technologies</span>
-        </div>
-        <div className="flex items-center gap-3">
-          <button
-            onClick={() => navigate('/directory')}
-            className="text-sm font-medium text-[#1a4d8f] border-b-2 border-[#1a4d8f] pb-0.5"
-          >
-            Directory
-          </button>
-          <button
-            onClick={() => navigate('/auth')}
-            className="text-sm text-[#64748b] hover:text-[#0f172a] border border-gray-200 rounded-lg px-3 py-1.5 hover:bg-gray-50"
-          >
-            Sign In
-          </button>
+      <nav className="sticky top-0 z-50 backdrop-blur-xl bg-white/80 border-b border-black/5">
+        <div className="max-w-6xl mx-auto flex items-center justify-between px-6 py-3">
+          <div className="flex items-center gap-3">
+            <div className="w-3 h-3 rounded-full bg-[#0071e3]" />
+            <span className="font-semibold text-[#1d1d1f] text-lg tracking-tight">Agent OnBoard</span>
+            <span className="text-sm text-[#86868b]">by Auwire Technologies</span>
+          </div>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => navigate('/directory')}
+              className="text-sm font-medium text-[#0071e3]"
+            >
+              Directory
+            </button>
+            <button
+              onClick={() => navigate('/auth')}
+              className="text-sm text-[#6e6e73] hover:text-[#1d1d1f] rounded-full px-4 py-1.5 hover:bg-black/5 transition-all duration-200"
+            >
+              Sign In
+            </button>
+          </div>
         </div>
       </nav>
 
-      <div className="max-w-6xl mx-auto px-4 py-8">
+      <div className="max-w-6xl mx-auto px-4 py-12">
         {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-[#0f172a] mb-2">Agent Directory</h1>
-          <p className="text-[#64748b]">Find verified agents to connect with</p>
+        <div className="text-center mb-10">
+          <h1 className="text-4xl font-bold text-[#1d1d1f] tracking-tight mb-3">Agent Directory</h1>
+          <p className="text-lg text-[#6e6e73]">Find verified agents to connect with</p>
         </div>
 
         {/* Search & Filters */}
-        <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm mb-6">
+        <div className="bg-white rounded-2xl p-5 shadow-sm mb-8">
           <div className="flex flex-col md:flex-row gap-3">
             <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#64748b]" />
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#86868b]" />
               <input
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full border border-gray-200 rounded-lg pl-10 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#1a4d8f]"
+                className="w-full bg-[#f5f5f7] border-0 rounded-full pl-11 pr-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#0071e3]/30 transition-all duration-200"
                 placeholder="Search by name, company, or type..."
               />
             </div>
             <select
               value={typeFilter}
               onChange={(e) => setTypeFilter(e.target.value)}
-              className="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#1a4d8f]"
+              className="bg-[#f5f5f7] border-0 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#0071e3]/30 transition-all duration-200"
             >
               <option value="">All Agent Types</option>
               {agentTypes.map((t) => <option key={t} value={t}>{t}</option>)}
@@ -157,28 +159,28 @@ export default function Directory() {
             <select
               value={platformFilter}
               onChange={(e) => setPlatformFilter(e.target.value)}
-              className="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#1a4d8f]"
+              className="bg-[#f5f5f7] border-0 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#0071e3]/30 transition-all duration-200"
             >
               <option value="">All Platforms</option>
               {llmPlatforms.map((p) => <option key={p} value={p}>{p}</option>)}
             </select>
-            <label className="flex items-center gap-2 cursor-pointer px-3 py-2 border border-gray-200 rounded-lg hover:bg-gray-50">
+            <label className="flex items-center gap-2 cursor-pointer px-4 py-3 bg-[#f5f5f7] rounded-xl hover:bg-[#e8e8ed] transition-all duration-200">
               <input
                 type="checkbox"
                 checked={verifiedOnly}
                 onChange={(e) => setVerifiedOnly(e.target.checked)}
-                className="w-4 h-4 rounded border-gray-300 text-[#2d6b4a] focus:ring-[#2d6b4a]"
+                className="w-4 h-4 rounded border-[#86868b] text-[#0071e3] focus:ring-[#0071e3]"
               />
-              <span className="text-sm text-[#0f172a] whitespace-nowrap">Verified Only</span>
+              <span className="text-sm text-[#1d1d1f] whitespace-nowrap">Verified Only</span>
             </label>
           </div>
         </div>
 
         {/* Error State */}
         {error && (
-          <div className="bg-red-50 border border-red-200 rounded-xl p-6 text-center mb-6">
-            <p className="text-red-600 font-medium">Failed to load agents</p>
-            <p className="text-sm text-red-500 mt-1">{error}</p>
+          <div className="bg-[#ff3b30]/5 rounded-2xl p-6 text-center mb-6">
+            <p className="text-[#ff3b30] font-medium">Failed to load agents</p>
+            <p className="text-sm text-[#ff3b30]/70 mt-1">{error}</p>
           </div>
         )}
 
@@ -191,10 +193,10 @@ export default function Directory() {
 
         {/* Empty State */}
         {!loading && !error && filtered.length === 0 && (
-          <div className="bg-white border border-gray-200 rounded-xl p-12 shadow-sm text-center">
-            <Users className="w-12 h-12 mx-auto text-gray-300 mb-3" />
-            <p className="text-[#64748b] font-medium text-lg">No agents found matching your search</p>
-            <p className="text-sm text-[#64748b] mt-1">Try adjusting your filters or search terms</p>
+          <div className="bg-white rounded-2xl p-16 shadow-sm text-center">
+            <Users className="w-12 h-12 mx-auto text-[#86868b]/30 mb-4" />
+            <p className="text-[#6e6e73] font-medium text-lg">No agents found matching your search</p>
+            <p className="text-sm text-[#86868b] mt-1">Try adjusting your filters or search terms</p>
           </div>
         )}
 
@@ -202,12 +204,12 @@ export default function Directory() {
         {!loading && !error && filtered.length > 0 && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {filtered.map((agent) => {
-              const color = typeColors[agent.agent_type] || '#64748b'
+              const color = typeColors[agent.agent_type] || '#86868b'
               const isVerified = agent.soul_md && agent.soul_md.trim().length > 0
               const bio = agent.soul_md ? agent.soul_md.slice(0, 100) + (agent.soul_md.length > 100 ? '...' : '') : null
 
               return (
-                <div key={agent.id} className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow">
+                <div key={agent.id} className="bg-white rounded-2xl p-6 shadow-sm hover:shadow-md transition-all duration-200">
                   <div className="flex items-center gap-4 mb-4">
                     <div
                       className="w-14 h-14 rounded-full flex items-center justify-center flex-shrink-0"
@@ -216,42 +218,42 @@ export default function Directory() {
                       <span className="text-lg font-bold text-white">{getInitials(agent.agent_name)}</span>
                     </div>
                     <div className="min-w-0">
-                      <p className="font-bold text-[#0f172a] truncate">{agent.agent_name}</p>
-                      <p className="text-sm text-[#64748b] truncate">{agent.company}</p>
+                      <p className="font-bold text-[#1d1d1f] truncate">{agent.agent_name}</p>
+                      <p className="text-sm text-[#6e6e73] truncate">{agent.company}</p>
                     </div>
                   </div>
 
                   <div className="flex gap-2 mb-3 flex-wrap">
-                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-50 text-[#1a4d8f]">
+                    <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-[#0071e3]/10 text-[#0071e3]">
                       {agent.agent_type}
                     </span>
-                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-50 text-purple-700">
+                    <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-purple-500/10 text-purple-600">
                       {agent.llm_platform}
                     </span>
                   </div>
 
                   {isVerified && (
-                    <div className="flex items-center gap-1 mb-3 text-[#2d6b4a]">
+                    <div className="flex items-center gap-1 mb-3 text-[#34c759]">
                       <Shield className="w-3.5 h-3.5" />
                       <span className="text-xs font-medium">Verified</span>
                     </div>
                   )}
 
                   {bio && (
-                    <p className="text-xs text-[#64748b] mb-4 line-clamp-2">{bio}</p>
+                    <p className="text-xs text-[#86868b] mb-4 line-clamp-2">{bio}</p>
                   )}
                   {!bio && <div className="mb-4" />}
 
-                  <div className="flex gap-2">
+                  <div className="flex gap-3">
                     <button
                       onClick={() => navigate(`/connect?token=${agent.qr_token}`)}
-                      className="flex-1 bg-[#1a4d8f] text-white rounded-lg px-3 py-2 text-sm font-medium hover:opacity-90"
+                      className="flex-1 bg-[#0071e3] hover:bg-[#0077ED] text-white rounded-full px-3 py-2 text-sm font-medium transition-all duration-200"
                     >
                       Connect
                     </button>
                     <button
                       onClick={() => navigate(`/agent/${agent.id}`)}
-                      className="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-sm font-medium hover:bg-gray-50"
+                      className="flex-1 bg-[#f5f5f7] hover:bg-[#e8e8ed] text-[#1d1d1f] rounded-full px-3 py-2 text-sm font-medium transition-all duration-200"
                     >
                       View Profile
                     </button>

@@ -18,32 +18,34 @@ export default function Layout({ children, activeAgentName }) {
   }
 
   return (
-    <div className="min-h-screen bg-white">
-      <nav className="flex items-center justify-between px-6 py-3 border-b border-gray-200">
-        <div className="flex items-center gap-2">
-          <div className="w-3 h-3 rounded-full bg-[#2d6b4a]" />
-          <span className="font-bold text-[#0f172a] text-lg cursor-pointer" onClick={() => navigate('/')}>Agent OnBoard</span>
-          <span className="text-sm text-[#64748b]">by Auwire Technologies</span>
-          {activeAgentName && (
-            <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-[#1a4d8f]">
-              {activeAgentName}
-            </span>
-          )}
-        </div>
-        <div className="flex items-center gap-4">
-          <button
-            onClick={() => navigate('/directory')}
-            className="text-sm text-[#64748b] hover:text-[#1a4d8f] font-medium"
-          >
-            Directory
-          </button>
-          <span className="text-sm text-[#64748b]">{email}</span>
-          <button
-            onClick={handleSignOut}
-            className="text-sm text-[#64748b] hover:text-[#0f172a] border border-gray-200 rounded-lg px-3 py-1.5 hover:bg-gray-50"
-          >
-            Sign Out
-          </button>
+    <div className="min-h-screen bg-[#f5f5f7]">
+      <nav className="sticky top-0 z-50 backdrop-blur-xl bg-white/80 border-b border-black/5">
+        <div className="max-w-6xl mx-auto flex items-center justify-between px-6 py-3">
+          <div className="flex items-center gap-3">
+            <div className="w-3 h-3 rounded-full bg-[#0071e3]" />
+            <span className="font-semibold text-[#1d1d1f] text-lg tracking-tight cursor-pointer transition-opacity hover:opacity-70" onClick={() => navigate('/')}>Agent OnBoard</span>
+            <span className="text-sm text-[#86868b]">by Auwire Technologies</span>
+            {activeAgentName && (
+              <span className="ml-2 inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-[#0071e3]/10 text-[#0071e3]">
+                {activeAgentName}
+              </span>
+            )}
+          </div>
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => navigate('/directory')}
+              className="text-sm text-[#1d1d1f] hover:text-[#0071e3] font-medium transition-colors duration-200"
+            >
+              Directory
+            </button>
+            <span className="text-sm text-[#86868b]">{email}</span>
+            <button
+              onClick={handleSignOut}
+              className="text-sm text-[#6e6e73] hover:text-[#1d1d1f] rounded-full px-4 py-1.5 hover:bg-black/5 transition-all duration-200"
+            >
+              Sign Out
+            </button>
+          </div>
         </div>
       </nav>
       <main>{children}</main>

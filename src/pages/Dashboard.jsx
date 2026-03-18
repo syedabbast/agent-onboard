@@ -9,36 +9,36 @@ import { Clock, Users, Zap, Shield, Plus, Bot, XCircle } from 'lucide-react'
 
 function DashboardSkeleton() {
   return (
-    <div className="max-w-6xl mx-auto px-4 py-6">
+    <div className="max-w-6xl mx-auto px-4 py-8">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="space-y-6">
-          <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm animate-pulse">
-            <div className="h-6 bg-gray-200 rounded w-2/3 mb-2" />
-            <div className="h-4 bg-gray-200 rounded w-1/2 mb-3" />
+          <div className="bg-white rounded-2xl p-6 shadow-sm animate-pulse">
+            <div className="h-6 bg-[#f5f5f7] rounded-xl w-2/3 mb-3" />
+            <div className="h-4 bg-[#f5f5f7] rounded-xl w-1/2 mb-4" />
             <div className="flex gap-2">
-              <div className="h-6 bg-gray-200 rounded-full w-24" />
-              <div className="h-6 bg-gray-200 rounded-full w-20" />
+              <div className="h-7 bg-[#f5f5f7] rounded-full w-24" />
+              <div className="h-7 bg-[#f5f5f7] rounded-full w-20" />
             </div>
           </div>
-          <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm animate-pulse">
-            <div className="h-5 bg-gray-200 rounded w-40 mx-auto mb-4" />
-            <div className="w-[200px] h-[200px] bg-gray-200 rounded mx-auto" />
+          <div className="bg-white rounded-2xl p-6 shadow-sm animate-pulse">
+            <div className="h-5 bg-[#f5f5f7] rounded-xl w-40 mx-auto mb-4" />
+            <div className="w-[200px] h-[200px] bg-[#f5f5f7] rounded-2xl mx-auto" />
           </div>
         </div>
         <div className="lg:col-span-2 space-y-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm animate-pulse">
-                <div className="w-5 h-5 bg-gray-200 rounded mx-auto mb-2" />
-                <div className="h-8 bg-gray-200 rounded w-12 mx-auto mb-1" />
-                <div className="h-3 bg-gray-200 rounded w-16 mx-auto" />
+              <div key={i} className="bg-white rounded-2xl p-5 shadow-sm animate-pulse">
+                <div className="w-5 h-5 bg-[#f5f5f7] rounded-full mx-auto mb-3" />
+                <div className="h-8 bg-[#f5f5f7] rounded-xl w-12 mx-auto mb-2" />
+                <div className="h-3 bg-[#f5f5f7] rounded-xl w-16 mx-auto" />
               </div>
             ))}
           </div>
           {[1, 2].map((i) => (
-            <div key={i} className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm animate-pulse">
-              <div className="h-5 bg-gray-200 rounded w-40 mb-4" />
-              <div className="h-16 bg-gray-200 rounded" />
+            <div key={i} className="bg-white rounded-2xl p-6 shadow-sm animate-pulse">
+              <div className="h-5 bg-[#f5f5f7] rounded-xl w-40 mb-4" />
+              <div className="h-16 bg-[#f5f5f7] rounded-xl" />
             </div>
           ))}
         </div>
@@ -199,20 +199,20 @@ export default function Dashboard() {
 
   return (
     <Layout activeAgentName={agent?.agent_name}>
-      <div className="max-w-6xl mx-auto px-4 py-6">
+      <div className="max-w-6xl mx-auto px-4 py-8">
         {/* Agent Switcher */}
         {agents.length > 1 && (
-          <div className="bg-white border border-gray-200 rounded-xl p-3 shadow-sm mb-6">
+          <div className="bg-white rounded-2xl p-4 shadow-sm mb-6">
             <div className="flex items-center gap-2 flex-wrap">
-              <span className="text-sm text-[#64748b] mr-1">Your Agents:</span>
+              <span className="text-sm text-[#86868b] mr-1">Your Agents:</span>
               {agents.map((ag) => (
                 <button
                   key={ag.id}
                   onClick={() => switchAgent(ag)}
-                  className={`inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                  className={`inline-flex items-center px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
                     ag.id === agent.id
-                      ? 'bg-[#1a4d8f] text-white'
-                      : 'bg-gray-100 text-[#64748b] hover:bg-gray-200'
+                      ? 'bg-[#0071e3] text-white'
+                      : 'bg-[#f5f5f7] text-[#6e6e73] hover:bg-[#e8e8ed]'
                   }`}
                 >
                   {ag.agent_name}
@@ -220,7 +220,7 @@ export default function Dashboard() {
               ))}
               <button
                 onClick={() => navigate('/register')}
-                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm font-medium border border-dashed border-gray-300 text-[#64748b] hover:bg-gray-50"
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium border border-dashed border-black/10 text-[#6e6e73] hover:bg-[#f5f5f7] transition-all duration-200"
               >
                 <Plus className="w-3.5 h-3.5" />
                 Create New Agent
@@ -233,7 +233,7 @@ export default function Dashboard() {
           <div className="flex justify-end mb-4">
             <button
               onClick={() => navigate('/register')}
-              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm font-medium border border-gray-200 text-[#64748b] hover:bg-gray-50"
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium bg-[#f5f5f7] text-[#6e6e73] hover:bg-[#e8e8ed] transition-all duration-200"
             >
               <Plus className="w-3.5 h-3.5" />
               Create New Agent
@@ -245,34 +245,34 @@ export default function Dashboard() {
           {/* LEFT COLUMN */}
           <div className="space-y-6">
             {/* Agent Card */}
-            <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
-              <h2 className="text-xl font-bold text-[#0f172a]">{agent.agent_name}</h2>
-              <p className="text-[#64748b] text-sm">{agent.company}</p>
-              <div className="flex gap-2 mt-3 flex-wrap">
-                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-50 text-[#1a4d8f]">{agent.agent_type}</span>
-                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-50 text-purple-700">{agent.llm_platform}</span>
+            <div className="bg-white rounded-2xl p-6 shadow-sm">
+              <h2 className="text-xl font-bold text-[#1d1d1f] tracking-tight">{agent.agent_name}</h2>
+              <p className="text-[#6e6e73] text-sm mt-1">{agent.company}</p>
+              <div className="flex gap-2 mt-4 flex-wrap">
+                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-[#0071e3]/10 text-[#0071e3]">{agent.agent_type}</span>
+                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-purple-500/10 text-purple-600">{agent.llm_platform}</span>
               </div>
               <div className="flex items-center gap-2 mt-3 flex-wrap">
-                <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-green-50 text-[#2d6b4a]">
-                  <div className="w-2 h-2 rounded-full bg-[#2d6b4a]" /> Active
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-[#34c759]/10 text-[#34c759]">
+                  <div className="w-2 h-2 rounded-full bg-[#34c759]" /> Active
                 </span>
               </div>
 
               {/* Auto-Respond Toggle */}
               {agent.llm_api_key && (
-                <div className="mt-4 pt-4 border-t border-gray-200">
+                <div className="mt-5 pt-5 border-t border-black/5">
                   <button
                     onClick={() => toggleAutoRespond(agent.id)}
-                    className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium w-full justify-center transition-colors ${
+                    className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-medium w-full justify-center transition-all duration-200 ${
                       autoRespond
-                        ? 'bg-[#2d6b4a] text-white'
-                        : 'border border-gray-200 text-[#64748b] hover:bg-gray-50'
+                        ? 'bg-[#34c759] text-white'
+                        : 'bg-[#f5f5f7] text-[#6e6e73] hover:bg-[#e8e8ed]'
                     }`}
                   >
                     <Bot className="w-3.5 h-3.5" />
                     Auto-Respond {autoRespond ? 'ON' : 'OFF'}
                   </button>
-                  <p className="text-xs text-[#64748b] mt-1 text-center">
+                  <p className="text-xs text-[#86868b] mt-2 text-center">
                     {autoRespond ? 'Agent will auto-reply to new messages' : 'Enable automatic AI responses'}
                   </p>
                 </div>
@@ -280,9 +280,9 @@ export default function Dashboard() {
             </div>
 
             {/* QR Section */}
-            <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm text-center">
-              <h3 className="font-semibold text-[#0f172a] mb-1">Your Agent QR Code</h3>
-              <p className="text-sm text-[#64748b] mb-4">Share this so other agents can connect</p>
+            <div className="bg-white rounded-2xl p-6 shadow-sm text-center">
+              <h3 className="font-semibold text-[#1d1d1f] mb-1">Your Agent QR Code</h3>
+              <p className="text-sm text-[#86868b] mb-4">Share this so other agents can connect</p>
               <QRDisplay agent={agent} />
             </div>
           </div>
@@ -291,64 +291,64 @@ export default function Dashboard() {
           <div className="lg:col-span-2 space-y-6">
             {/* Stats Row */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-              <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm text-center">
-                <Clock className="w-5 h-5 mx-auto text-[#b45309] mb-1" />
-                <p className="text-2xl font-bold text-[#0f172a]">{pending.length}</p>
-                <p className="text-xs text-[#64748b]">Pending</p>
+              <div className="bg-white rounded-2xl p-5 shadow-sm text-center hover:shadow-md transition-shadow duration-200">
+                <Clock className="w-5 h-5 mx-auto text-[#ff9500] mb-2" />
+                <p className="text-3xl font-bold text-[#1d1d1f] tracking-tight">{pending.length}</p>
+                <p className="text-xs text-[#86868b] mt-1">Pending</p>
               </div>
-              <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm text-center">
-                <Zap className="w-5 h-5 mx-auto text-[#2d6b4a] mb-1" />
-                <p className="text-2xl font-bold text-[#0f172a]">{active.length}</p>
-                <p className="text-xs text-[#64748b]">Active</p>
+              <div className="bg-white rounded-2xl p-5 shadow-sm text-center hover:shadow-md transition-shadow duration-200">
+                <Zap className="w-5 h-5 mx-auto text-[#34c759] mb-2" />
+                <p className="text-3xl font-bold text-[#1d1d1f] tracking-tight">{active.length}</p>
+                <p className="text-xs text-[#86868b] mt-1">Active</p>
               </div>
-              <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm text-center">
-                <Users className="w-5 h-5 mx-auto text-[#1a4d8f] mb-1" />
-                <p className="text-2xl font-bold text-[#0f172a]">{totalConnections}</p>
-                <p className="text-xs text-[#64748b]">Total</p>
+              <div className="bg-white rounded-2xl p-5 shadow-sm text-center hover:shadow-md transition-shadow duration-200">
+                <Users className="w-5 h-5 mx-auto text-[#0071e3] mb-2" />
+                <p className="text-3xl font-bold text-[#1d1d1f] tracking-tight">{totalConnections}</p>
+                <p className="text-xs text-[#86868b] mt-1">Total</p>
               </div>
-              <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm text-center">
-                <Shield className="w-5 h-5 mx-auto text-[#2d6b4a] mb-1" />
-                <p className="text-2xl font-bold text-[#2d6b4a]">Online</p>
-                <p className="text-xs text-[#64748b]">Status</p>
+              <div className="bg-white rounded-2xl p-5 shadow-sm text-center hover:shadow-md transition-shadow duration-200">
+                <Shield className="w-5 h-5 mx-auto text-[#34c759] mb-2" />
+                <p className="text-2xl font-bold text-[#34c759] tracking-tight">Online</p>
+                <p className="text-xs text-[#86868b] mt-1">Status</p>
               </div>
             </div>
 
             {/* Pending Requests */}
             <div>
-              <h3 className="text-lg font-semibold text-[#0f172a] mb-3">Pending Requests</h3>
+              <h3 className="text-lg font-semibold text-[#1d1d1f] tracking-tight mb-3">Pending Requests</h3>
               {pending.length === 0 ? (
-                <div className="bg-white border border-gray-200 rounded-xl p-8 shadow-sm text-center">
-                  <Clock className="w-10 h-10 mx-auto text-gray-300 mb-2" />
-                  <p className="text-[#64748b] font-medium">No pending requests</p>
-                  <p className="text-sm text-[#64748b]">Share your QR code to receive connections</p>
+                <div className="bg-white rounded-2xl p-10 shadow-sm text-center">
+                  <Clock className="w-10 h-10 mx-auto text-[#86868b]/30 mb-3" />
+                  <p className="text-[#6e6e73] font-medium">No pending requests</p>
+                  <p className="text-sm text-[#86868b]">Share your QR code to receive connections</p>
                 </div>
               ) : (
                 <div className="space-y-3">
                   {pending.map((conn) => (
-                    <div key={conn.id} className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
+                    <div key={conn.id} className="bg-white rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow duration-200">
                       <div className="flex items-start justify-between">
                         <div>
-                          <p className="font-semibold text-[#0f172a]">{conn.requester?.agent_name}</p>
-                          <p className="text-sm text-[#64748b]">{conn.requester?.company}</p>
-                          <div className="flex gap-2 mt-1 flex-wrap">
-                            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-[#1a4d8f]">{conn.requester?.agent_type}</span>
-                            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-purple-50 text-purple-700">{conn.requester?.llm_platform}</span>
+                          <p className="font-semibold text-[#1d1d1f]">{conn.requester?.agent_name}</p>
+                          <p className="text-sm text-[#6e6e73]">{conn.requester?.company}</p>
+                          <div className="flex gap-2 mt-2 flex-wrap">
+                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#0071e3]/10 text-[#0071e3]">{conn.requester?.agent_type}</span>
+                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-500/10 text-purple-600">{conn.requester?.llm_platform}</span>
                           </div>
-                          {conn.purpose && <p className="text-sm text-[#0f172a] mt-2 italic">"{conn.purpose}"</p>}
-                          <p className="text-xs text-[#64748b] mt-1">{timeAgo(conn.created_at)}</p>
+                          {conn.purpose && <p className="text-sm text-[#1d1d1f] mt-2 italic">"{conn.purpose}"</p>}
+                          <p className="text-xs text-[#86868b] mt-1">{timeAgo(conn.created_at)}</p>
                         </div>
                         <div className="flex gap-2 flex-shrink-0">
                           <button
                             onClick={() => approve(conn)}
                             disabled={actionLoading === conn.id}
-                            className="bg-green-600 text-white rounded-lg px-4 py-2 text-sm hover:opacity-90 disabled:opacity-50"
+                            className="bg-[#34c759] hover:bg-[#30b350] text-white rounded-full px-5 py-2 text-sm font-medium disabled:opacity-50 transition-all duration-200"
                           >
                             Approve
                           </button>
                           <button
                             onClick={() => decline(conn)}
                             disabled={actionLoading === conn.id}
-                            className="bg-red-100 text-red-600 rounded-lg px-4 py-2 text-sm hover:bg-red-200 disabled:opacity-50"
+                            className="bg-[#ff3b30]/10 text-[#ff3b30] rounded-full px-5 py-2 text-sm font-medium hover:bg-[#ff3b30]/20 disabled:opacity-50 transition-all duration-200"
                           >
                             Decline
                           </button>
@@ -362,11 +362,11 @@ export default function Dashboard() {
 
             {/* Active Connections */}
             <div>
-              <h3 className="text-lg font-semibold text-[#0f172a] mb-3">Active Connections</h3>
+              <h3 className="text-lg font-semibold text-[#1d1d1f] tracking-tight mb-3">Active Connections</h3>
               {active.length === 0 ? (
-                <div className="bg-white border border-gray-200 rounded-xl p-8 shadow-sm text-center">
-                  <Users className="w-10 h-10 mx-auto text-gray-300 mb-2" />
-                  <p className="text-[#64748b] font-medium">No active connections yet</p>
+                <div className="bg-white rounded-2xl p-10 shadow-sm text-center">
+                  <Users className="w-10 h-10 mx-auto text-[#86868b]/30 mb-3" />
+                  <p className="text-[#6e6e73] font-medium">No active connections yet</p>
                 </div>
               ) : (
                 <div className="space-y-3">
@@ -374,40 +374,40 @@ export default function Dashboard() {
                     const other = otherAgent(conn)
                     const msgCount = unapprovedCounts[conn.id] || 0
                     return (
-                      <div key={conn.id} className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
+                      <div key={conn.id} className="bg-white rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow duration-200">
                         <div className="flex items-center justify-between">
                           <div>
                             <div className="flex items-center gap-2">
-                              <p className="font-semibold text-[#0f172a]">{other?.agent_name}</p>
+                              <p className="font-semibold text-[#1d1d1f]">{other?.agent_name}</p>
                               {msgCount > 0 && (
-                                <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-[#b45309] text-white text-xs font-bold">
+                                <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-[#ff3b30] text-white text-xs font-bold">
                                   {msgCount}
                                 </span>
                               )}
                             </div>
-                            <p className="text-sm text-[#64748b]">{other?.company}</p>
-                            <div className="flex gap-2 mt-1 flex-wrap">
-                              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-[#1a4d8f]">{other?.agent_type}</span>
-                              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-purple-50 text-purple-700">{other?.llm_platform}</span>
+                            <p className="text-sm text-[#6e6e73]">{other?.company}</p>
+                            <div className="flex gap-2 mt-2 flex-wrap">
+                              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#0071e3]/10 text-[#0071e3]">{other?.agent_type}</span>
+                              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-500/10 text-purple-600">{other?.llm_platform}</span>
                             </div>
-                            <p className="text-xs text-[#64748b] mt-1">Connected {timeAgo(conn.approved_at || conn.created_at)}</p>
+                            <p className="text-xs text-[#86868b] mt-1">Connected {timeAgo(conn.approved_at || conn.created_at)}</p>
                           </div>
                           <div className="flex gap-2 flex-shrink-0">
                             <button
                               onClick={() => navigate(`/session/${conn.id}`)}
-                              className="bg-[#1a4d8f] text-white rounded-lg px-4 py-2 text-sm hover:opacity-90"
+                              className="bg-[#0071e3] hover:bg-[#0077ED] text-white rounded-full px-5 py-2 text-sm font-medium transition-all duration-200"
                             >
                               Open Session
                             </button>
                             <button
                               onClick={() => navigate(`/audit/${conn.id}`)}
-                              className="border border-gray-200 rounded-lg px-4 py-2 text-sm hover:bg-gray-50"
+                              className="bg-[#f5f5f7] hover:bg-[#e8e8ed] text-[#1d1d1f] rounded-full px-5 py-2 text-sm font-medium transition-all duration-200"
                             >
                               View Audit
                             </button>
                             <button
                               onClick={() => setRevokeTarget(conn)}
-                              className="border border-red-200 text-red-600 rounded-lg px-3 py-2 text-sm hover:bg-red-50"
+                              className="text-[#ff3b30] hover:bg-[#ff3b30]/5 rounded-full px-4 py-2 text-sm font-medium transition-all duration-200"
                             >
                               Revoke
                             </button>
@@ -425,36 +425,36 @@ export default function Dashboard() {
 
       {/* Revoke Confirmation Modal */}
       {revokeTarget && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4">
-          <div className="bg-white rounded-xl p-6 max-w-md w-full shadow-xl">
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 px-4">
+          <div className="bg-white rounded-2xl p-6 max-w-md w-full shadow-2xl">
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0">
-                <XCircle className="w-5 h-5 text-red-600" />
+              <div className="w-10 h-10 rounded-full bg-[#ff3b30]/10 flex items-center justify-center flex-shrink-0">
+                <XCircle className="w-5 h-5 text-[#ff3b30]" />
               </div>
               <div>
-                <h3 className="font-semibold text-[#0f172a]">Revoke Connection</h3>
-                <p className="text-sm text-[#64748b]">
+                <h3 className="font-semibold text-[#1d1d1f]">Revoke Connection</h3>
+                <p className="text-sm text-[#6e6e73]">
                   This will end your connection with{' '}
-                  <span className="font-medium text-[#0f172a]">
+                  <span className="font-medium text-[#1d1d1f]">
                     {otherAgent(revokeTarget)?.agent_name}
                   </span>
                 </p>
               </div>
             </div>
-            <p className="text-sm text-[#64748b] mb-4">
+            <p className="text-sm text-[#6e6e73] mb-6">
               This action cannot be undone. The other agent will no longer be able to send messages in this session.
             </p>
-            <div className="flex gap-2 justify-end">
+            <div className="flex gap-3 justify-end">
               <button
                 onClick={() => setRevokeTarget(null)}
-                className="border border-gray-200 rounded-lg px-4 py-2 text-sm hover:bg-gray-50"
+                className="bg-[#f5f5f7] hover:bg-[#e8e8ed] text-[#1d1d1f] rounded-full px-5 py-2.5 text-sm font-medium transition-all duration-200"
               >
                 Cancel
               </button>
               <button
                 onClick={() => revokeConnection(revokeTarget)}
                 disabled={actionLoading === revokeTarget.id}
-                className="bg-red-600 text-white rounded-lg px-4 py-2 text-sm hover:opacity-90 disabled:opacity-50"
+                className="bg-[#ff3b30] hover:bg-[#ff453a] text-white rounded-full px-5 py-2.5 text-sm font-medium disabled:opacity-50 transition-all duration-200"
               >
                 {actionLoading === revokeTarget.id ? 'Revoking...' : 'Revoke Connection'}
               </button>

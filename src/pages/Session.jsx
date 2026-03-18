@@ -31,30 +31,30 @@ RULES:
 
 function SessionSkeleton() {
   return (
-    <div className="max-w-4xl mx-auto px-4 py-4">
-      <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm mb-4 animate-pulse">
+    <div className="max-w-4xl mx-auto px-4 py-6">
+      <div className="bg-white rounded-2xl p-5 shadow-sm mb-4 animate-pulse">
         <div className="flex items-center justify-between">
           <div>
-            <div className="h-5 bg-gray-200 rounded w-32 mb-2" />
-            <div className="h-4 bg-gray-200 rounded-full w-20" />
+            <div className="h-5 bg-[#f5f5f7] rounded-xl w-32 mb-2" />
+            <div className="h-4 bg-[#f5f5f7] rounded-full w-20" />
           </div>
-          <div className="h-4 bg-gray-200 rounded w-24" />
+          <div className="h-4 bg-[#f5f5f7] rounded-xl w-24" />
           <div className="text-right">
-            <div className="h-5 bg-gray-200 rounded w-32 mb-2 ml-auto" />
-            <div className="h-4 bg-gray-200 rounded-full w-20 ml-auto" />
+            <div className="h-5 bg-[#f5f5f7] rounded-xl w-32 mb-2 ml-auto" />
+            <div className="h-4 bg-[#f5f5f7] rounded-full w-20 ml-auto" />
           </div>
         </div>
       </div>
-      <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden animate-pulse">
-        <div className="min-h-[400px] p-4 space-y-4">
+      <div className="bg-white rounded-2xl shadow-sm overflow-hidden animate-pulse">
+        <div className="min-h-[400px] p-6 space-y-4">
           <div className="flex justify-start">
-            <div className="h-12 bg-gray-200 rounded-xl w-2/3" />
+            <div className="h-12 bg-[#f5f5f7] rounded-2xl w-2/3" />
           </div>
           <div className="flex justify-end">
-            <div className="h-12 bg-gray-200 rounded-xl w-1/2" />
+            <div className="h-12 bg-[#0071e3]/10 rounded-2xl w-1/2" />
           </div>
           <div className="flex justify-start">
-            <div className="h-16 bg-gray-200 rounded-xl w-3/5" />
+            <div className="h-16 bg-[#f5f5f7] rounded-2xl w-3/5" />
           </div>
         </div>
       </div>
@@ -350,14 +350,14 @@ export default function Session() {
   if (connection.status === 'revoked') {
     return (
       <Layout activeAgentName={myAgent?.agent_name}>
-        <div className="max-w-4xl mx-auto px-4 py-4">
-          <div className="bg-red-50 border border-red-200 rounded-xl p-6 text-center">
-            <AlertTriangle className="w-12 h-12 mx-auto text-red-500 mb-3" />
-            <h2 className="text-xl font-bold text-[#0f172a] mb-2">Connection Revoked</h2>
-            <p className="text-[#64748b] mb-4">This connection has been revoked. No further messages can be sent.</p>
+        <div className="max-w-4xl mx-auto px-4 py-6">
+          <div className="bg-[#ff3b30]/5 rounded-2xl p-8 text-center">
+            <AlertTriangle className="w-12 h-12 mx-auto text-[#ff3b30] mb-4" />
+            <h2 className="text-xl font-bold text-[#1d1d1f] tracking-tight mb-2">Connection Revoked</h2>
+            <p className="text-[#6e6e73] mb-6">This connection has been revoked. No further messages can be sent.</p>
             <button
               onClick={() => navigate('/')}
-              className="bg-[#1a4d8f] text-white rounded-lg px-6 py-2 text-sm font-medium hover:opacity-90"
+              className="bg-[#0071e3] hover:bg-[#0077ED] text-white rounded-full px-6 py-2.5 text-sm font-medium transition-all duration-200"
             >
               Return to Dashboard
             </button>
@@ -373,10 +373,10 @@ export default function Session() {
       <Layout activeAgentName={myAgent?.agent_name}>
         <div className="flex items-center justify-center min-h-[60vh]">
           <div className="text-center">
-            <Clock className="w-16 h-16 mx-auto text-gray-300 mb-4" />
-            <h2 className="text-xl font-bold text-[#0f172a] mb-2">Waiting for approval</h2>
-            <p className="text-[#64748b]">{otherAgent?.agent_name} has not approved yet</p>
-            <p className="text-sm text-[#64748b] mt-2">This page will update automatically</p>
+            <Clock className="w-16 h-16 mx-auto text-[#86868b]/30 mb-4" />
+            <h2 className="text-xl font-bold text-[#1d1d1f] tracking-tight mb-2">Waiting for approval</h2>
+            <p className="text-[#6e6e73]">{otherAgent?.agent_name} has not approved yet</p>
+            <p className="text-sm text-[#86868b] mt-2">This page will update automatically</p>
           </div>
         </div>
       </Layout>
@@ -387,59 +387,59 @@ export default function Session() {
 
   return (
     <Layout activeAgentName={myAgent?.agent_name}>
-      <div className="max-w-4xl mx-auto px-4 py-4">
+      <div className="max-w-4xl mx-auto px-4 py-6">
         {/* Header bar */}
-        <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm mb-4">
+        <div className="backdrop-blur-xl bg-white/90 rounded-2xl p-5 shadow-sm mb-4">
           <div className="flex items-center justify-between flex-wrap gap-2">
             <div>
-              <p className="font-semibold text-[#0f172a]">{myAgent.agent_name}</p>
-              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-[#1a4d8f]">{myAgent.llm_platform}</span>
+              <p className="font-semibold text-[#1d1d1f]">{myAgent.agent_name}</p>
+              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#0071e3]/10 text-[#0071e3]">{myAgent.llm_platform}</span>
             </div>
-            <div className="flex items-center gap-2 text-[#2d6b4a]">
+            <div className="flex items-center gap-2 text-[#34c759]">
               <span className="text-sm font-medium">Connected</span>
               <Lock className="w-4 h-4" />
             </div>
             <div className="text-right">
-              <p className="font-semibold text-[#0f172a]">{otherAgent?.agent_name}</p>
-              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-orange-50 text-[#8f3a1a]">{otherAgent?.llm_platform}</span>
+              <p className="font-semibold text-[#1d1d1f]">{otherAgent?.agent_name}</p>
+              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#ff9500]/10 text-[#ff9500]">{otherAgent?.llm_platform}</span>
             </div>
           </div>
-          <div className="flex items-center justify-between mt-2 flex-wrap gap-2">
+          <div className="flex items-center justify-between mt-3 flex-wrap gap-2">
             <div className="flex items-center gap-2 flex-wrap">
               {myAgent.llm_api_key && (
                 <>
                   <button
                     onClick={() => setAiMode(!aiMode)}
-                    className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                    className={`inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-medium transition-all duration-200 ${
                       aiMode
-                        ? 'bg-[#2d6b4a] text-white'
-                        : 'border border-gray-200 text-[#64748b] hover:bg-gray-50'
+                        ? 'bg-[#34c759] text-white'
+                        : 'bg-[#f5f5f7] text-[#6e6e73] hover:bg-[#e8e8ed]'
                     }`}
                   >
                     <Bot className="w-3.5 h-3.5" />
                     AI Mode {aiMode ? 'ON' : 'OFF'}
                   </button>
                   {autoRespondEnabled && (
-                    <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-purple-50 text-purple-700">
+                    <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium bg-purple-500/10 text-purple-600">
                       <Bot className="w-3 h-3" />
                       Auto-Respond ON
                     </span>
                   )}
-                  {aiMode && !autoRespondEnabled && <span className="text-xs text-[#64748b]">Your agent will think using Claude</span>}
+                  {aiMode && !autoRespondEnabled && <span className="text-xs text-[#86868b]">Your agent will think using Claude</span>}
                 </>
               )}
             </div>
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setShowRevokeModal(true)}
-                className="border border-red-200 text-red-600 rounded-lg px-3 py-1.5 text-xs hover:bg-red-50 flex items-center gap-1"
+                className="text-[#ff3b30] hover:bg-[#ff3b30]/5 rounded-full px-4 py-1.5 text-xs font-medium flex items-center gap-1 transition-all duration-200"
               >
                 <XCircle className="w-3.5 h-3.5" />
                 Revoke Connection
               </button>
               <button
                 onClick={() => navigate(`/audit/${id}`)}
-                className="border border-gray-200 rounded-lg px-3 py-1.5 text-xs hover:bg-gray-50"
+                className="bg-[#f5f5f7] hover:bg-[#e8e8ed] rounded-full px-4 py-1.5 text-xs font-medium transition-all duration-200"
               >
                 Audit Log
               </button>
@@ -448,10 +448,10 @@ export default function Session() {
         </div>
 
         {/* Messages */}
-        <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
-          <div className="min-h-[400px] max-h-[500px] overflow-y-auto p-4 space-y-3">
+        <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+          <div className="min-h-[400px] max-h-[500px] overflow-y-auto p-6 space-y-3">
             {messages.length === 0 && (
-              <div className="text-center text-[#64748b] py-12">
+              <div className="text-center text-[#86868b] py-16">
                 <p>No messages yet. Start the conversation!</p>
               </div>
             )}
@@ -461,31 +461,31 @@ export default function Session() {
                 <div key={msg.id} className={`flex ${isMine ? 'justify-end' : 'justify-start'}`}>
                   <div className="max-w-[70%]">
                     <div
-                      className={`rounded-xl px-4 py-2 ${
+                      className={`px-4 py-2.5 ${
                         isMine
-                          ? 'bg-[#1a4d8f] text-white'
+                          ? 'bg-[#0071e3] text-white rounded-2xl rounded-br-md'
                           : msg.approved === false
-                            ? 'bg-gray-100 border-2 border-yellow-400'
-                            : 'bg-gray-100'
+                            ? 'bg-[#f5f5f7] border-2 border-[#ff9500] text-[#1d1d1f] rounded-2xl rounded-bl-md'
+                            : 'bg-[#f5f5f7] text-[#1d1d1f] rounded-2xl rounded-bl-md'
                       }`}
                     >
                       <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
                     </div>
                     <div className={`flex items-center gap-2 mt-1 ${isMine ? 'justify-end' : ''}`}>
-                      <span className="text-xs text-[#64748b]">{isMine ? myAgent.agent_name : otherAgent?.agent_name}</span>
+                      <span className="text-xs text-[#86868b]">{isMine ? myAgent.agent_name : otherAgent?.agent_name}</span>
                       {msg.message_type === 'agent_response' && (
                         <span className="inline-flex items-center gap-0.5 text-xs text-purple-600">
                           <Bot className="w-3 h-3" /> AI
                         </span>
                       )}
-                      <span className="text-xs text-[#64748b]">{formatTime(msg.created_at)}</span>
+                      <span className="text-xs text-[#86868b]">{formatTime(msg.created_at)}</span>
                     </div>
                     {!isMine && msg.approved === false && (
                       <div className="mt-1">
-                        <span className="text-xs text-[#b45309] font-medium mr-2">Awaiting your approval</span>
+                        <span className="text-xs text-[#ff9500] font-medium mr-2">Awaiting your approval</span>
                         <button
                           onClick={() => approveMessage(msg)}
-                          className="text-xs bg-green-600 text-white rounded px-2 py-0.5 hover:opacity-90"
+                          className="text-xs bg-[#34c759] text-white rounded-full px-3 py-0.5 hover:bg-[#30b350] transition-all duration-200"
                         >
                           Approve
                         </button>
@@ -497,9 +497,9 @@ export default function Session() {
             })}
             {aiThinking && (
               <div className="flex justify-end">
-                <div className="bg-blue-50 border border-blue-200 rounded-xl px-4 py-2">
-                  <div className="flex items-center gap-2 text-sm text-[#1a4d8f]">
-                    <div className="w-4 h-4 border-2 border-[#1a4d8f] border-t-transparent rounded-full animate-spin" />
+                <div className="bg-[#0071e3]/5 rounded-2xl rounded-br-md px-4 py-2.5">
+                  <div className="flex items-center gap-2 text-sm text-[#0071e3]">
+                    <div className="w-4 h-4 border-2 border-[#0071e3]/20 border-t-[#0071e3] rounded-full animate-spin" />
                     {myAgent.agent_name} is thinking...
                   </div>
                 </div>
@@ -509,23 +509,23 @@ export default function Session() {
           </div>
 
           {/* Input */}
-          <div className="border-t border-gray-200 p-4">
+          <div className="border-t border-black/5 p-4">
             {aiMode ? (
               <div className="flex items-center gap-3">
-                <div className="flex-1 bg-purple-50 border border-purple-200 rounded-lg px-4 py-3">
-                  <div className="flex items-center gap-2 text-sm text-purple-700">
+                <div className="flex-1 bg-purple-500/5 rounded-xl px-4 py-3">
+                  <div className="flex items-center gap-2 text-sm text-purple-600">
                     <Bot className="w-4 h-4" />
                     <span className="font-medium">AI Mode</span>
-                    <span className="text-purple-600">— Your agent will respond using Claude based on conversation context</span>
+                    <span className="text-purple-500">— Your agent will respond using Claude based on conversation context</span>
                   </div>
                 </div>
                 <button
                   onClick={generateAiResponse}
                   disabled={aiThinking}
-                  className="bg-[#2d6b4a] text-white rounded-lg px-6 py-3 text-sm font-medium hover:opacity-90 disabled:opacity-50 flex items-center gap-2 flex-shrink-0"
+                  className="bg-[#34c759] hover:bg-[#30b350] text-white rounded-full px-6 py-3 text-sm font-medium disabled:opacity-50 flex items-center gap-2 flex-shrink-0 transition-all duration-200"
                 >
                   {aiThinking ? (
-                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                   ) : (
                     <Bot className="w-4 h-4" />
                   )}
@@ -533,19 +533,19 @@ export default function Session() {
                 </button>
               </div>
             ) : (
-              <div className="flex gap-2">
+              <div className="flex gap-3">
                 <textarea
                   value={newMsg}
                   onChange={(e) => setNewMsg(e.target.value)}
                   onKeyDown={handleKeyDown}
                   rows={2}
-                  className="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#1a4d8f] resize-none"
+                  className="flex-1 bg-[#f5f5f7] border-0 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#0071e3]/30 resize-none transition-all duration-200"
                   placeholder="Type a message manually..."
                 />
                 <button
                   onClick={sendMessage}
                   disabled={sending || !newMsg.trim()}
-                  className="bg-[#1a4d8f] text-white rounded-lg px-6 py-2 text-sm font-medium hover:opacity-90 disabled:opacity-50 self-end"
+                  className="bg-[#0071e3] hover:bg-[#0077ED] text-white rounded-full px-6 py-2.5 text-sm font-medium disabled:opacity-50 self-end transition-all duration-200"
                 >
                   Send
                 </button>
@@ -555,41 +555,41 @@ export default function Session() {
         </div>
 
         {/* Security bar */}
-        <div className="bg-[#2d6b4a] text-white text-center text-xs py-2 rounded-b-xl">
+        <div className="bg-[#1d1d1f] text-white/60 text-center text-xs py-2.5 rounded-b-2xl -mt-1">
           Secured by Agent OnBoard — auwiretech.com — All messages logged and auditable
         </div>
       </div>
 
       {/* Revoke Confirmation Modal */}
       {showRevokeModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4">
-          <div className="bg-white rounded-xl p-6 max-w-md w-full shadow-xl">
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 px-4">
+          <div className="bg-white rounded-2xl p-6 max-w-md w-full shadow-2xl">
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0">
-                <XCircle className="w-5 h-5 text-red-600" />
+              <div className="w-10 h-10 rounded-full bg-[#ff3b30]/10 flex items-center justify-center flex-shrink-0">
+                <XCircle className="w-5 h-5 text-[#ff3b30]" />
               </div>
               <div>
-                <h3 className="font-semibold text-[#0f172a]">Revoke Connection</h3>
-                <p className="text-sm text-[#64748b]">
+                <h3 className="font-semibold text-[#1d1d1f]">Revoke Connection</h3>
+                <p className="text-sm text-[#6e6e73]">
                   This will end your connection with{' '}
-                  <span className="font-medium text-[#0f172a]">{otherAgent?.agent_name}</span>
+                  <span className="font-medium text-[#1d1d1f]">{otherAgent?.agent_name}</span>
                 </p>
               </div>
             </div>
-            <p className="text-sm text-[#64748b] mb-4">
+            <p className="text-sm text-[#6e6e73] mb-6">
               This action cannot be undone. No further messages can be sent in this session.
             </p>
-            <div className="flex gap-2 justify-end">
+            <div className="flex gap-3 justify-end">
               <button
                 onClick={() => setShowRevokeModal(false)}
-                className="border border-gray-200 rounded-lg px-4 py-2 text-sm hover:bg-gray-50"
+                className="bg-[#f5f5f7] hover:bg-[#e8e8ed] text-[#1d1d1f] rounded-full px-5 py-2.5 text-sm font-medium transition-all duration-200"
               >
                 Cancel
               </button>
               <button
                 onClick={revokeConnection}
                 disabled={revoking}
-                className="bg-red-600 text-white rounded-lg px-4 py-2 text-sm hover:opacity-90 disabled:opacity-50"
+                className="bg-[#ff3b30] hover:bg-[#ff453a] text-white rounded-full px-5 py-2.5 text-sm font-medium disabled:opacity-50 transition-all duration-200"
               >
                 {revoking ? 'Revoking...' : 'Revoke Connection'}
               </button>

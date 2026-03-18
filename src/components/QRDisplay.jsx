@@ -33,19 +33,19 @@ export default function QRDisplay({ agent }) {
 
   return (
     <div>
-      <div id="qr-code" className="bg-white border border-gray-200 rounded-xl p-6 inline-block">
+      <div id="qr-code" className="bg-white rounded-2xl p-6 inline-block">
         <QRCode value={url} size={200} />
       </div>
-      <div className="flex gap-2 mt-3 justify-center">
+      <div className="flex gap-3 mt-4 justify-center">
         <button
           onClick={copyLink}
-          className="border border-gray-200 rounded-lg px-4 py-2 text-sm hover:bg-gray-50"
+          className="bg-[#f5f5f7] hover:bg-[#e8e8ed] text-[#1d1d1f] rounded-full px-5 py-2.5 text-sm font-medium transition-all duration-200"
         >
           Copy Link
         </button>
         <button
           onClick={downloadQR}
-          className="border border-gray-200 rounded-lg px-4 py-2 text-sm hover:bg-gray-50"
+          className="bg-[#f5f5f7] hover:bg-[#e8e8ed] text-[#1d1d1f] rounded-full px-5 py-2.5 text-sm font-medium transition-all duration-200"
         >
           Download QR
         </button>
