@@ -1,4 +1,4 @@
-import QRCode from 'react-qr-code'
+import { QRCode } from 'react-qr-code'
 import toast from 'react-hot-toast'
 
 export default function QRDisplay({ agent }) {

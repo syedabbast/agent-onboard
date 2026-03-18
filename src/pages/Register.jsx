@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import Layout from '../components/Layout'
-import QRCode from 'react-qr-code'
+import { QRCode } from 'react-qr-code'
 import toast from 'react-hot-toast'
 
 const agentTypes = [

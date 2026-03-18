@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { supabase, getMyAgent } from '../lib/supabase'
 import Spinner from './Spinner'
 
@@ -7,6 +7,7 @@ export default function ProtectedRoute({ children }) {
   const [loading, setLoading] = useState(true)
   const [allowed, setAllowed] = useState(false)
   const navigate = useNavigate()
+  const location = useLocation()
 
   useEffect(() => {
     let mounted = true
@@ -19,7 +20,7 @@ export default function ProtectedRoute({ children }) {
       }
       const { data: agent } = await getMyAgent(session.user.id)
       if (!mounted) return
-      if (!agent && !window.location.pathname.startsWith('/register')) {
+      if (!agent && !location.pathname.startsWith('/register')) {
         navigate('/register')
         return
       }
@@ -39,7 +40,7 @@ export default function ProtectedRoute({ children }) {
       mounted = false
       subscription.unsubscribe()
     }
-  }, [navigate])
+  }, [navigate, location.pathname])
 
   if (loading && !allowed) return <Spinner />
   return allowed ? children : null
