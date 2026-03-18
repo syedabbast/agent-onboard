@@ -23,6 +23,8 @@ RULES:
 - Only discuss topics relevant to your role as a ${agent.agent_type} agent
 - Be helpful and collaborative
 - Keep responses under 150 words
+- When the conversation has reached a natural conclusion (agreement made, questions answered, no further action needed), end your final message with the exact tag [SESSION_COMPLETE] on its own line. This signals the session is done.
+- Only use [SESSION_COMPLETE] when both sides have clearly wrapped up. Do not use it prematurely.
 `
   if (agent.soul_md) prompt += `\nYOUR IDENTITY FILE (soul.md):\n${agent.soul_md}\n`
   if (agent.skill_md) prompt += `\nYOUR CAPABILITIES FILE (skill.md):\n${agent.skill_md}\n`
@@ -120,17 +122,22 @@ export default function Session() {
       const msgs = await loadMessages(conn.id)
       prevMessageCountRef.current = msgs.length
       setLoading(false)
+
+      // Auto-respond on session open if last message is from the other agent
+      if (conn.status === 'approved' && msgs.length > 0 && mine.llm_api_key) {
+        const lastMsg = msgs[msgs.length - 1]
+        if (lastMsg && lastMsg.sender_agent_id !== mine.id) {
+          setTimeout(() => triggerAutoRespond(msgs, mine, conn), 800)
+        }
+      }
     }
     load()
   }, [id])
 
   // Auto-respond logic
-  const handleAutoRespond = useCallback(async (currentMessages, agent, conn) => {
+  const triggerAutoRespond = async (currentMessages, agent, conn) => {
     if (!agent || !conn) return
     if (autoRespondingRef.current) return
-
-    const isAutoEnabled = localStorage.getItem(`llm_auto_${agent.id}`) === 'true'
-    if (!isAutoEnabled) return
     if (!agent.llm_api_key) return
 
     // Check if latest message is from the other agent
@@ -170,22 +177,41 @@ export default function Session() {
 
       const { response } = await res.json()
 
+      // Check if conversation is concluded
+      const isComplete = response.includes('[SESSION_COMPLETE]')
+      const cleanResponse = response.replace(/\[SESSION_COMPLETE\]/g, '').trim()
+
       await supabase.from('messages').insert({
         connection_id: conn.id,
         sender_agent_id: agent.id,
-        content: response,
+        content: cleanResponse,
         message_type: 'agent_response',
         approved: true,
       })
 
       await logAudit(conn.id, agent.id, 'message_sent', { source: 'ai_auto_respond' })
       toast.success('Agent responded automatically', { icon: '🤖' })
+
+      // Auto-complete session if conversation concluded
+      if (isComplete) {
+        await supabase.from('connections').update({ status: 'completed' }).eq('id', conn.id)
+        await logAudit(conn.id, agent.id, 'session_completed', { reason: 'conversation_concluded' })
+        toast.success('Session completed — conversation concluded', { icon: '✅', duration: 5000 })
+        setConnection(prev => ({ ...prev, status: 'completed' }))
+      }
     } catch (err) {
       console.warn('Auto-respond failed:', err.message)
     }
 
     setAiThinking(false)
     autoRespondingRef.current = false
+  }
+
+  // Wrapper that checks localStorage before calling triggerAutoRespond
+  const handleAutoRespond = useCallback((currentMessages, agent, conn) => {
+    const isAutoEnabled = localStorage.getItem(`llm_auto_${agent?.id}`) === 'true'
+    if (!isAutoEnabled) return
+    triggerAutoRespond(currentMessages, agent, conn)
   }, [])
 
   // Realtime subscriptions
@@ -196,11 +222,10 @@ export default function Session() {
       .channel(`session-messages-${id}`)
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages', filter: `connection_id=eq.${id}` }, async () => {
         const newMsgs = await loadMessages(id)
-        // Only auto-respond if we got a genuinely new message from the other party
         if (newMsgs.length > prevMessageCountRef.current && myAgent && connection) {
           const lastMsg = newMsgs[newMsgs.length - 1]
-          if (lastMsg && lastMsg.sender_agent_id !== myAgent.id) {
-            handleAutoRespond(newMsgs, myAgent, connection)
+          if (lastMsg && lastMsg.sender_agent_id !== myAgent.id && myAgent.llm_api_key) {
+            triggerAutoRespond(newMsgs, myAgent, connection)
           }
         }
         prevMessageCountRef.current = newMsgs.length
@@ -342,6 +367,63 @@ export default function Session() {
     return (
       <Layout>
         <SessionSkeleton />
+      </Layout>
+    )
+  }
+
+  // Completed state
+  if (connection.status === 'completed') {
+    return (
+      <Layout activeAgentName={myAgent?.agent_name}>
+        <div className="max-w-4xl mx-auto px-4 py-6">
+          <div className="bg-[#34c759]/5 rounded-2xl p-8 text-center mb-6">
+            <div className="w-16 h-16 rounded-full bg-[#34c759]/10 flex items-center justify-center mx-auto mb-4">
+              <span className="text-3xl">✅</span>
+            </div>
+            <h2 className="text-xl font-bold text-[#1d1d1f] tracking-tight mb-2">Session Completed</h2>
+            <p className="text-[#6e6e73] mb-2">This conversation has concluded successfully.</p>
+            <p className="text-sm text-[#86868b] mb-6">All messages are preserved in the audit trail.</p>
+            <div className="flex gap-3 justify-center">
+              <button
+                onClick={() => navigate('/')}
+                className="bg-[#0071e3] hover:bg-[#0077ED] text-white rounded-full px-6 py-2.5 text-sm font-medium transition-all duration-200"
+              >
+                Return to Dashboard
+              </button>
+              <button
+                onClick={() => navigate(`/audit/${id}`)}
+                className="bg-[#f5f5f7] hover:bg-[#e8e8ed] text-[#1d1d1f] rounded-full px-6 py-2.5 text-sm font-medium transition-all duration-200"
+              >
+                View Audit Trail
+              </button>
+            </div>
+          </div>
+
+          {/* Show conversation history read-only */}
+          <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+            <div className="p-4 border-b border-black/5">
+              <p className="text-sm font-medium text-[#6e6e73] text-center">Conversation History</p>
+            </div>
+            <div className="max-h-[400px] overflow-y-auto p-6 space-y-3">
+              {messages.map((msg) => {
+                const isMine = msg.sender_agent_id === myAgent.id
+                return (
+                  <div key={msg.id} className={`flex ${isMine ? 'justify-end' : 'justify-start'}`}>
+                    <div className="max-w-[70%]">
+                      <div className={`px-4 py-2.5 ${isMine ? 'bg-[#0071e3] text-white rounded-2xl rounded-br-md' : 'bg-[#f5f5f7] text-[#1d1d1f] rounded-2xl rounded-bl-md'}`}>
+                        <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
+                      </div>
+                      <div className={`flex items-center gap-2 mt-1 ${isMine ? 'justify-end' : ''}`}>
+                        <span className="text-xs text-[#86868b]">{isMine ? myAgent.agent_name : otherAgent?.agent_name}</span>
+                        <span className="text-xs text-[#86868b]">{formatTime(msg.created_at)}</span>
+                      </div>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        </div>
       </Layout>
     )
   }

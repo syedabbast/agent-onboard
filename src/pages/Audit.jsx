@@ -9,6 +9,7 @@ const actionLabels = {
   connection_approved: 'Approved connection',
   connection_declined: 'Declined connection',
   connection_revoked: 'Revoked connection',
+  session_completed: 'Session completed',
   message_sent: 'Sent a message',
   message_approved: 'Approved a message',
 }
