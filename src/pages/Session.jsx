@@ -6,7 +6,7 @@ import Spinner from '../components/Spinner'
 import toast from 'react-hot-toast'
 import { Clock, Lock, Bot, XCircle, AlertTriangle, CheckCircle } from 'lucide-react'
 
-const API_URL = 'http://localhost:3001'
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001'
 const MAX_AUTO_TURNS = 10 // Max messages each agent can auto-send
 const MAX_TOTAL_MESSAGES = 24 // Hard cap on total messages before auto-close
 const RESPONSE_DELAY_MS = 2000 // Delay before auto-responding
