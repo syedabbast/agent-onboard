@@ -4,27 +4,41 @@ import { supabase, getMyAgent, logAudit, sendNotification, timeAgo } from '../li
 import Layout from '../components/Layout'
 import Spinner from '../components/Spinner'
 import toast from 'react-hot-toast'
-import { Clock, Lock, Bot, XCircle, AlertTriangle } from 'lucide-react'
+import { Clock, Lock, Bot, XCircle, AlertTriangle, CheckCircle } from 'lucide-react'
 
 const API_URL = 'http://localhost:3001'
+const MAX_AUTO_TURNS = 10 // Max messages each agent can auto-send
+const MAX_TOTAL_MESSAGES = 24 // Hard cap on total messages before auto-close
+const RESPONSE_DELAY_MS = 2000 // Delay before auto-responding
 
 function formatTime(dateStr) {
   return new Date(dateStr).toLocaleString()
 }
 
-function buildSystemPrompt(agent) {
+function buildSystemPrompt(agent, turnNumber, totalMessages, maxTurns) {
+  const turnsLeft = maxTurns - turnNumber
   let prompt = `You are "${agent.agent_name}", an AI agent representing ${agent.company}.
 You are a ${agent.agent_type} agent running on ${agent.llm_platform}.
 You are communicating through Agent OnBoard, a secure handshake layer between AI agents by Auwire Technologies.
+
+CONVERSATION STATUS:
+- This is your turn #${turnNumber} out of ${maxTurns} maximum turns.
+- Total messages in session: ${totalMessages}
+- You have ${turnsLeft} turns remaining.
+${turnsLeft <= 2 ? '- ⚠️ YOU ARE RUNNING LOW ON TURNS. Begin wrapping up the conversation NOW.' : ''}
+${turnsLeft <= 0 ? '- ❌ THIS IS YOUR FINAL TURN. You MUST conclude the conversation.' : ''}
 
 RULES:
 - Be professional and concise
 - Stay in character as ${agent.agent_name}
 - Only discuss topics relevant to your role as a ${agent.agent_type} agent
 - Be helpful and collaborative
-- Keep responses under 150 words
-- When the conversation has reached a natural conclusion (agreement made, questions answered, no further action needed), end your final message with the exact tag [SESSION_COMPLETE] on its own line. This signals the session is done.
-- Only use [SESSION_COMPLETE] when both sides have clearly wrapped up. Do not use it prematurely.
+- Keep responses under 120 words
+- DO NOT repeat what has already been discussed
+- DO NOT ask open-ended questions after turn 6 — start summarizing and concluding
+- After turn 8 or when the conversation has reached a natural conclusion, end your message with [SESSION_COMPLETE] on its own line
+- If you have ${turnsLeft <= 1 ? 'no' : turnsLeft} turns left, you MUST end with [SESSION_COMPLETE]
+- [SESSION_COMPLETE] signals the session is done and will auto-close it
 `
   if (agent.soul_md) prompt += `\nYOUR IDENTITY FILE (soul.md):\n${agent.soul_md}\n`
   if (agent.skill_md) prompt += `\nYOUR CAPABILITIES FILE (skill.md):\n${agent.skill_md}\n`
@@ -134,7 +148,7 @@ export default function Session() {
     load()
   }, [id])
 
-  // Auto-respond logic
+  // Auto-respond logic with loop protection
   const triggerAutoRespond = async (currentMessages, agent, conn) => {
     if (!agent || !conn) return
     if (autoRespondingRef.current) return
@@ -144,8 +158,41 @@ export default function Session() {
     const lastMsg = currentMessages[currentMessages.length - 1]
     if (!lastMsg || lastMsg.sender_agent_id === agent.id) return
 
+    // --- LOOP PROTECTION ---
+    const totalMessages = currentMessages.length
+    const myTurns = currentMessages.filter(m => m.sender_agent_id === agent.id).length
+
+    // Hard cap: too many total messages → auto-close
+    if (totalMessages >= MAX_TOTAL_MESSAGES) {
+      await supabase.from('connections').update({ status: 'completed' }).eq('id', conn.id)
+      await logAudit(conn.id, agent.id, 'session_completed', { reason: 'max_messages_reached', total: totalMessages })
+      toast.success('Session auto-completed — message limit reached', { icon: '✅', duration: 5000 })
+      setConnection(prev => ({ ...prev, status: 'completed' }))
+      return
+    }
+
+    // Per-agent turn cap
+    if (myTurns >= MAX_AUTO_TURNS) {
+      await supabase.from('connections').update({ status: 'completed' }).eq('id', conn.id)
+      await logAudit(conn.id, agent.id, 'session_completed', { reason: 'max_turns_reached', turns: myTurns })
+      toast.success('Session auto-completed — turn limit reached', { icon: '✅', duration: 5000 })
+      setConnection(prev => ({ ...prev, status: 'completed' }))
+      return
+    }
+
     autoRespondingRef.current = true
     setAiThinking(true)
+
+    // Delay to prevent rapid-fire loop
+    await new Promise(resolve => setTimeout(resolve, RESPONSE_DELAY_MS))
+
+    // Re-check connection status (might have been completed by the other side)
+    const { data: freshConn } = await supabase.from('connections').select('status').eq('id', conn.id).single()
+    if (freshConn?.status !== 'approved') {
+      setAiThinking(false)
+      autoRespondingRef.current = false
+      return
+    }
 
     const approvedMsgs = currentMessages
       .filter(m => m.approved)
@@ -165,7 +212,7 @@ export default function Session() {
         body: JSON.stringify({
           api_key: agent.llm_api_key,
           platform: agent.llm_platform,
-          system_prompt: buildSystemPrompt(agent),
+          system_prompt: buildSystemPrompt(agent, myTurns + 1, totalMessages, MAX_AUTO_TURNS),
           messages: approvedMsgs
         })
       })
@@ -189,13 +236,13 @@ export default function Session() {
         approved: true,
       })
 
-      await logAudit(conn.id, agent.id, 'message_sent', { source: 'ai_auto_respond' })
-      toast.success('Agent responded automatically', { icon: '🤖' })
+      await logAudit(conn.id, agent.id, 'message_sent', { source: 'ai_auto_respond', turn: myTurns + 1 })
+      toast.success(`Agent responded (turn ${myTurns + 1}/${MAX_AUTO_TURNS})`, { icon: '🤖' })
 
       // Auto-complete session if conversation concluded
       if (isComplete) {
         await supabase.from('connections').update({ status: 'completed' }).eq('id', conn.id)
-        await logAudit(conn.id, agent.id, 'session_completed', { reason: 'conversation_concluded' })
+        await logAudit(conn.id, agent.id, 'session_completed', { reason: 'conversation_concluded', turns: myTurns + 1 })
         toast.success('Session completed — conversation concluded', { icon: '✅', duration: 5000 })
         setConnection(prev => ({ ...prev, status: 'completed' }))
       }
@@ -466,6 +513,17 @@ export default function Session() {
   }
 
   const autoRespondEnabled = localStorage.getItem(`llm_auto_${myAgent?.id}`) === 'true'
+  const myTurnCount = messages.filter(m => m.sender_agent_id === myAgent?.id).length
+  const totalMsgCount = messages.length
+  const turnsRemaining = MAX_AUTO_TURNS - myTurnCount
+  const progressPct = Math.min((totalMsgCount / MAX_TOTAL_MESSAGES) * 100, 100)
+
+  const endSession = async () => {
+    await supabase.from('connections').update({ status: 'completed' }).eq('id', connection.id)
+    await logAudit(connection.id, myAgent.id, 'session_completed', { reason: 'manual_end', turns: myTurnCount })
+    toast.success('Session ended', { icon: '✅' })
+    setConnection(prev => ({ ...prev, status: 'completed' }))
+  }
 
   return (
     <Layout activeAgentName={myAgent?.agent_name}>
@@ -527,6 +585,43 @@ export default function Session() {
               </button>
             </div>
           </div>
+        </div>
+
+        {/* Session Control Bar */}
+        <div className="bg-white rounded-2xl p-4 shadow-sm mb-4">
+          <div className="flex items-center justify-between gap-4 flex-wrap">
+            <div className="flex items-center gap-4 flex-1 min-w-0">
+              <div className="flex-1">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-xs text-[#86868b]">Session progress</span>
+                  <span className="text-xs font-medium text-[#1d1d1f]">{totalMsgCount} / {MAX_TOTAL_MESSAGES} messages</span>
+                </div>
+                <div className="w-full bg-[#f5f5f7] rounded-full h-2">
+                  <div
+                    className={`h-2 rounded-full transition-all duration-500 ${progressPct >= 80 ? 'bg-[#ff9500]' : progressPct >= 100 ? 'bg-[#ff3b30]' : 'bg-[#0071e3]'}`}
+                    style={{ width: `${progressPct}%` }}
+                  />
+                </div>
+              </div>
+              <div className="text-center px-3 border-l border-black/5">
+                <p className="text-lg font-bold text-[#1d1d1f]">{turnsRemaining}</p>
+                <p className="text-xs text-[#86868b]">turns left</p>
+              </div>
+            </div>
+            <button
+              onClick={endSession}
+              className="bg-[#ff9500] hover:bg-[#e68600] text-white rounded-full px-5 py-2 text-sm font-medium transition-all duration-200 flex items-center gap-1.5 flex-shrink-0"
+            >
+              <CheckCircle className="w-3.5 h-3.5" />
+              End Session
+            </button>
+          </div>
+          {turnsRemaining <= 3 && turnsRemaining > 0 && (
+            <p className="text-xs text-[#ff9500] mt-2">Your agent is wrapping up — {turnsRemaining} turn{turnsRemaining > 1 ? 's' : ''} remaining before auto-close.</p>
+          )}
+          {turnsRemaining <= 0 && (
+            <p className="text-xs text-[#ff3b30] mt-2">Turn limit reached. Session will auto-close. You can still end it manually.</p>
+          )}
         </div>
 
         {/* Messages */}
