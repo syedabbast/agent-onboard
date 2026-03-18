@@ -51,6 +51,77 @@ export async function sendNotification(type, to, agentName, companyName, connect
   }
 }
 
+export async function uploadDocument(agentId, file) {
+  const filePath = `${agentId}/${Date.now()}-${file.name}`
+  const { data, error } = await supabase.storage
+    .from('agent-documents')
+    .upload(filePath, file)
+  if (error) return { data: null, error }
+
+  // Save metadata to agent_documents table
+  const { data: doc, error: docError } = await supabase
+    .from('agent_documents')
+    .insert({
+      agent_id: agentId,
+      file_name: file.name,
+      file_path: filePath,
+      file_size: file.size,
+      file_type: file.type,
+      status: 'processing'
+    })
+    .select()
+    .single()
+
+  return { data: doc, error: docError }
+}
+
+export async function getAgentDocuments(agentId) {
+  const { data, error } = await supabase
+    .from('agent_documents')
+    .select('*')
+    .eq('agent_id', agentId)
+    .order('created_at', { ascending: false })
+  return { data: data || [], error }
+}
+
+export async function deleteDocument(docId, filePath) {
+  await supabase.storage.from('agent-documents').remove([filePath])
+  const { error } = await supabase
+    .from('agent_documents')
+    .delete()
+    .eq('id', docId)
+  return { error }
+}
+
+export async function getDocumentContent(filePath) {
+  const { data, error } = await supabase.storage
+    .from('agent-documents')
+    .download(filePath)
+  if (error) return { content: null, error }
+  const text = await data.text()
+  return { content: text, error: null }
+}
+
+export async function getAgentKnowledge(agentId) {
+  // Get all documents for an agent and combine their content
+  const { data: docs } = await supabase
+    .from('agent_documents')
+    .select('*')
+    .eq('agent_id', agentId)
+    .eq('status', 'ready')
+
+  if (!docs || docs.length === 0) return ''
+
+  let knowledge = ''
+  for (const doc of docs) {
+    const { content } = await getDocumentContent(doc.file_path)
+    if (content) {
+      knowledge += `\n\n--- DOCUMENT: ${doc.file_name} ---\n${content}`
+    }
+  }
+  return knowledge
+}
+
 export function timeAgo(dateStr) {
   const seconds = Math.floor((Date.now() - new Date(dateStr).getTime()) / 1000)
   if (seconds < 60) return 'just now'

@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef, useCallback } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { supabase, getMyAgent, logAudit, sendNotification, timeAgo } from '../lib/supabase'
+import { supabase, getMyAgent, logAudit, sendNotification, timeAgo, getAgentKnowledge } from '../lib/supabase'
 import Layout from '../components/Layout'
 import Spinner from '../components/Spinner'
 import toast from 'react-hot-toast'
@@ -15,7 +15,7 @@ function formatTime(dateStr) {
   return new Date(dateStr).toLocaleString()
 }
 
-function buildSystemPrompt(agent, turnNumber, totalMessages, maxTurns) {
+function buildSystemPrompt(agent, turnNumber, totalMessages, maxTurns, knowledge) {
   const turnsLeft = maxTurns - turnNumber
   let prompt = `You are "${agent.agent_name}", an AI agent representing ${agent.company}.
 You are a ${agent.agent_type} agent running on ${agent.llm_platform}.
@@ -42,6 +42,7 @@ RULES:
 `
   if (agent.soul_md) prompt += `\nYOUR IDENTITY FILE (soul.md):\n${agent.soul_md}\n`
   if (agent.skill_md) prompt += `\nYOUR CAPABILITIES FILE (skill.md):\n${agent.skill_md}\n`
+  if (knowledge) prompt += `\nYOUR KNOWLEDGE BASE (uploaded documents by your owner):\n${knowledge}\n\nUse this knowledge to provide accurate, informed responses. Reference specific information from your documents when relevant.\n`
   return prompt
 }
 
@@ -95,6 +96,7 @@ export default function Session() {
   const messagesEndRef = useRef(null)
   const autoRespondingRef = useRef(false)
   const prevMessageCountRef = useRef(0)
+  const knowledgeRef = useRef('')
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -133,6 +135,11 @@ export default function Session() {
       setConnection(conn)
       setOtherAgent(conn.requester_agent_id === mine.id ? conn.target : conn.requester)
       setAiMode(!!mine.llm_api_key)
+
+      // Load agent knowledge base
+      const knowledge = await getAgentKnowledge(mine.id)
+      knowledgeRef.current = knowledge
+
       const msgs = await loadMessages(conn.id)
       prevMessageCountRef.current = msgs.length
       setLoading(false)
@@ -212,7 +219,7 @@ export default function Session() {
         body: JSON.stringify({
           api_key: agent.llm_api_key,
           platform: agent.llm_platform,
-          system_prompt: buildSystemPrompt(agent, myTurns + 1, totalMessages, MAX_AUTO_TURNS),
+          system_prompt: buildSystemPrompt(agent, myTurns + 1, totalMessages, MAX_AUTO_TURNS, knowledgeRef.current),
           messages: approvedMsgs
         })
       })
@@ -331,7 +338,7 @@ export default function Session() {
         body: JSON.stringify({
           api_key: myAgent.llm_api_key,
           platform: myAgent.llm_platform,
-          system_prompt: buildSystemPrompt(myAgent),
+          system_prompt: buildSystemPrompt(myAgent, messages.filter(m => m.sender_agent_id === myAgent.id).length + 1, messages.length, MAX_AUTO_TURNS, knowledgeRef.current),
           messages: approvedMsgs
         })
       })

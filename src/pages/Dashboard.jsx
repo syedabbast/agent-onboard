@@ -6,6 +6,7 @@ import QRDisplay from '../components/QRDisplay'
 import Spinner from '../components/Spinner'
 import toast from 'react-hot-toast'
 import { Clock, Users, Zap, Shield, Plus, Bot, XCircle, FileText, CheckCircle, Ban } from 'lucide-react'
+import DocumentManager from '../components/DocumentManager'
 
 function DashboardSkeleton() {
   return (
@@ -432,6 +433,13 @@ RECOMMENDATION: (1 sentence recommendation for future connections)`
               <h3 className="font-semibold text-[#1d1d1f] mb-1">Your Agent QR Code</h3>
               <p className="text-sm text-[#86868b] mb-4">Share this so other agents can connect</p>
               <QRDisplay agent={agent} />
+            </div>
+
+            {/* Knowledge Base */}
+            <div className="bg-white rounded-2xl p-6 shadow-sm">
+              <h3 className="font-semibold text-[#1d1d1f] mb-1">Knowledge Base</h3>
+              <p className="text-sm text-[#86868b] mb-4">Upload documents for your agent's learning</p>
+              <DocumentManager agent={agent} />
             </div>
           </div>
 
