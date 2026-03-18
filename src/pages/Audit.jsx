@@ -40,7 +40,7 @@ export default function Audit() {
         .single()
 
       if (!conn || (conn.requester_agent_id !== mine.id && conn.target_agent_id !== mine.id)) {
-        navigate('/')
+        navigate('/dashboard')
         return
       }
       setConnection(conn)

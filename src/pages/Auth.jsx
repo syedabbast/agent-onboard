@@ -59,7 +59,7 @@ export default function Auth() {
     }
     const { data: agents } = await getMyAgents(data.user.id)
     if (agents && agents.length > 0) {
-      navigate('/')
+      navigate('/dashboard')
     } else {
       navigate('/register')
     }

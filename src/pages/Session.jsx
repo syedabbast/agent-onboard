@@ -128,7 +128,7 @@ export default function Session() {
         .single()
 
       if (!conn || (conn.requester_agent_id !== mine.id && conn.target_agent_id !== mine.id)) {
-        navigate('/')
+        navigate('/dashboard')
         return
       }
 
@@ -416,7 +416,7 @@ export default function Session() {
     toast.success('Connection revoked')
     setShowRevokeModal(false)
     setRevoking(false)
-    navigate('/')
+    navigate('/dashboard')
   }
 
   if (loading) {
@@ -441,7 +441,7 @@ export default function Session() {
             <p className="text-sm text-[#94a3b8] mb-6">All messages are preserved in the audit trail.</p>
             <div className="flex gap-3 justify-center">
               <button
-                onClick={() => navigate('/')}
+                onClick={() => navigate('/dashboard')}
                 className="bg-[#0a1628] hover:bg-[#1e3a5f] text-white rounded-lg px-6 py-2.5 text-sm font-medium transition-all duration-200"
               >
                 Return to Dashboard
@@ -494,7 +494,7 @@ export default function Session() {
             <h2 className="text-xl font-serif font-bold text-[#0f172a] tracking-tight mb-2">Connection Revoked</h2>
             <p className="text-[#64748b] mb-6">This connection has been revoked. No further messages can be sent.</p>
             <button
-              onClick={() => navigate('/')}
+              onClick={() => navigate('/dashboard')}
               className="bg-[#0a1628] hover:bg-[#1e3a5f] text-white rounded-lg px-6 py-2.5 text-sm font-medium transition-all duration-200"
             >
               Return to Dashboard

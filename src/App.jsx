@@ -19,7 +19,7 @@ export default function App() {
         <Route path="/connect" element={<Connect />} />
         <Route path="/directory" element={<Directory />} />
         <Route path="/agent/:id" element={<AgentProfile />} />
-        <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+        <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
         <Route path="/register" element={<ProtectedRoute><Register /></ProtectedRoute>} />
         <Route path="/session/:id" element={<ProtectedRoute><Session /></ProtectedRoute>} />
         <Route path="/audit/:id" element={<ProtectedRoute><Audit /></ProtectedRoute>} />

@@ -114,7 +114,7 @@ export default function Register() {
             <p className="text-sm text-[#94a3b8] mb-8">Share your QR code to start receiving connection requests.</p>
             <div className="flex gap-3 justify-center flex-wrap">
               <button
-                onClick={() => navigate('/')}
+                onClick={() => navigate('/dashboard')}
                 className="bg-[#0a1628] hover:bg-[#1e3a5f] text-white rounded-lg px-6 py-2.5 text-sm font-medium transition-all duration-200"
               >
                 Go to Dashboard

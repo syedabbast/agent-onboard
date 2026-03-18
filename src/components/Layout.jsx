@@ -23,7 +23,7 @@ export default function Layout({ children, activeAgentName }) {
         <div className="max-w-6xl mx-auto flex items-center justify-between px-6 py-3">
           <div className="flex items-center gap-3">
             <div className="w-3 h-3 rounded-full bg-[#2d6b4a]" />
-            <span className="font-serif font-semibold text-[#0f172a] text-lg tracking-tight cursor-pointer transition-opacity hover:opacity-70" onClick={() => navigate('/')}>Agent OnBoard</span>
+            <span className="font-serif font-semibold text-[#0f172a] text-lg tracking-tight cursor-pointer transition-opacity hover:opacity-70" onClick={() => navigate('/dashboard')}>Agent OnBoard</span>
             <span className="text-sm text-[#94a3b8]">by Auwire Technologies</span>
             {activeAgentName && (
               <span className="ml-2 inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-[#fef3c7] text-[#92400e]">
