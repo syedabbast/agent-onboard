@@ -12,10 +12,10 @@ import toast from 'react-hot-toast'
 import { Bot, Lock, Shield } from 'lucide-react'
 
 const platformBadgeColors = {
-  claude: 'bg-amber-500/10 text-amber-600',
-  openai: 'bg-green-500/10 text-green-600',
-  gemini: 'bg-[#0071e3]/10 text-[#0071e3]',
-  other: 'bg-gray-500/10 text-gray-600',
+  claude: 'bg-[#fef3c7] text-[#92400e]',
+  openai: 'bg-[#edf5f0] text-[#2d6b4a]',
+  gemini: 'bg-[#0ea5e9]/10 text-[#0ea5e9]',
+  other: 'bg-[#f5f3ee] text-[#64748b]',
 }
 
 export default function ApiKeySettings({ agent, onUpdate }) {
@@ -145,16 +145,16 @@ export default function ApiKeySettings({ agent, onUpdate }) {
     <div className="space-y-4">
       {/* Auto-Respond Toggle */}
       {hasKey && (
-        <div className="bg-[#f5f5f7] rounded-xl p-4">
+        <div className="bg-[#f5f3ee] rounded-xl p-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Bot className="w-4 h-4 text-[#6e6e73]" />
-              <span className="text-sm font-medium text-[#1d1d1f]">Auto-Respond</span>
+              <Bot className="w-4 h-4 text-[#64748b]" />
+              <span className="text-sm font-medium text-[#0f172a]">Auto-Respond</span>
             </div>
             <button
               onClick={toggleAutoRespond}
               className={`relative inline-flex h-7 w-12 items-center rounded-full transition-colors duration-200 ${
-                autoRespond ? 'bg-[#34c759]' : 'bg-[#e8e8ed]'
+                autoRespond ? 'bg-[#0a1628]' : 'bg-[#e2e8f0]'
               }`}
             >
               <span
@@ -164,20 +164,20 @@ export default function ApiKeySettings({ agent, onUpdate }) {
               />
             </button>
           </div>
-          <p className="text-xs text-[#86868b] mt-2">
+          <p className="text-xs text-[#94a3b8] mt-2">
             Your agent responds automatically using your own API key. You pay your provider directly.
           </p>
         </div>
       )}
 
       {/* API Key Section */}
-      <div className="bg-[#f5f5f7] rounded-xl p-4">
-        <p className="text-xs font-medium text-[#86868b] uppercase tracking-wider mb-3">API Key</p>
+      <div className="bg-[#f5f3ee] rounded-xl p-4">
+        <p className="text-xs font-medium text-[#94a3b8] uppercase tracking-wider mb-3">API Key</p>
 
         {hasKey && !editing ? (
           <div className="space-y-3">
             <div className="flex items-center gap-2 flex-wrap">
-              <code className="text-sm font-mono text-[#1d1d1f] bg-white rounded-lg px-3 py-1.5 flex-1 min-w-0 truncate">
+              <code className="text-sm font-mono text-[#0f172a] bg-white rounded-lg px-3 py-1.5 flex-1 min-w-0 truncate">
                 {maskKey(agent.llm_api_key)}
               </code>
               {detectedPlatform && (
@@ -189,14 +189,14 @@ export default function ApiKeySettings({ agent, onUpdate }) {
             <div className="flex gap-2">
               <button
                 onClick={() => setEditing(true)}
-                className="bg-white hover:bg-[#e8e8ed] text-[#1d1d1f] rounded-full px-4 py-1.5 text-xs font-medium transition-all duration-200"
+                className="bg-white hover:bg-[#e8e5de] text-[#0f172a] rounded-lg px-4 py-1.5 text-xs font-medium transition-all duration-200"
               >
                 Update Key
               </button>
               <button
                 onClick={removeKey}
                 disabled={removing}
-                className="text-[#ff3b30] hover:bg-[#ff3b30]/5 rounded-full px-4 py-1.5 text-xs font-medium transition-all duration-200 disabled:opacity-50"
+                className="text-[#ff3b30] hover:bg-[#ff3b30]/5 rounded-lg px-4 py-1.5 text-xs font-medium transition-all duration-200 disabled:opacity-50"
               >
                 {removing ? 'Removing...' : 'Remove Key'}
               </button>
@@ -208,21 +208,21 @@ export default function ApiKeySettings({ agent, onUpdate }) {
               type="password"
               value={apiKey}
               onChange={(e) => setApiKey(e.target.value)}
-              className="w-full bg-white border-0 rounded-xl px-4 py-3 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-[#0071e3]/30 transition-all duration-200"
+              className="w-full bg-white border-0 rounded-lg px-4 py-3 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-[#0ea5e9]/30 transition-all duration-200"
               placeholder="sk-ant-... or sk-..."
             />
             <div className="flex gap-2">
               <button
                 onClick={saveKey}
                 disabled={saving || !apiKey.trim()}
-                className="bg-[#0071e3] hover:bg-[#0077ED] text-white rounded-full px-5 py-1.5 text-xs font-medium transition-all duration-200 disabled:opacity-50"
+                className="bg-[#0a1628] hover:bg-[#1e3a5f] text-white rounded-lg px-5 py-1.5 text-xs font-medium transition-all duration-200 disabled:opacity-50"
               >
                 {saving ? 'Saving...' : 'Save Key'}
               </button>
               {hasKey && (
                 <button
                   onClick={() => { setEditing(false); setApiKey('') }}
-                  className="bg-white hover:bg-[#e8e8ed] text-[#1d1d1f] rounded-full px-4 py-1.5 text-xs font-medium transition-all duration-200"
+                  className="bg-white hover:bg-[#e8e5de] text-[#0f172a] rounded-lg px-4 py-1.5 text-xs font-medium transition-all duration-200"
                 >
                   Cancel
                 </button>
@@ -234,12 +234,12 @@ export default function ApiKeySettings({ agent, onUpdate }) {
 
       {/* Model Selection */}
       {hasKey && models.length > 0 && (
-        <div className="bg-[#f5f5f7] rounded-xl p-4">
-          <p className="text-xs font-medium text-[#86868b] uppercase tracking-wider mb-3">Model</p>
+        <div className="bg-[#f5f3ee] rounded-xl p-4">
+          <p className="text-xs font-medium text-[#94a3b8] uppercase tracking-wider mb-3">Model</p>
           <select
             value={selectedModel}
             onChange={(e) => saveModel(e.target.value)}
-            className="w-full bg-white border-0 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#0071e3]/30 transition-all duration-200"
+            className="w-full bg-white border-0 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#0ea5e9]/30 transition-all duration-200"
           >
             {models.map((m) => (
               <option key={m.id} value={m.id}>
@@ -252,21 +252,21 @@ export default function ApiKeySettings({ agent, onUpdate }) {
 
       {/* Cost Estimate */}
       {hasKey && selectedModel && (
-        <div className="bg-[#0071e3]/5 rounded-xl p-4">
-          <p className="text-sm font-medium text-[#0071e3] mb-1">
+        <div className="bg-[#0ea5e9]/5 rounded-xl p-4">
+          <p className="text-sm font-medium text-[#0ea5e9] mb-1">
             Estimated cost: {getCostEstimate(selectedModel)}
           </p>
-          <p className="text-xs text-[#0071e3]/70">
+          <p className="text-xs text-[#0ea5e9]/70">
             Billed directly to your {getPlatformLabel(detectedPlatform)} account. Agent OnBoard never sees your usage or bill.
           </p>
         </div>
       )}
 
       {/* Privacy Note */}
-      <div className="bg-[#34c759]/5 rounded-xl p-4">
+      <div className="bg-[#edf5f0] border border-[#2d6b4a]/20 rounded-xl p-4">
         <div className="flex items-start gap-2">
-          <Lock className="w-4 h-4 text-[#34c759] mt-0.5 flex-shrink-0" />
-          <p className="text-xs text-[#34c759]/90 leading-relaxed">
+          <Lock className="w-4 h-4 text-[#2d6b4a] mt-0.5 flex-shrink-0" />
+          <p className="text-xs text-[#2d6b4a]/90 leading-relaxed">
             Your API key is encrypted and stored only for your agent. Agent OnBoard staff cannot read it. It is never shared with other agents or users. You can remove it at any time.
           </p>
         </div>

@@ -14,33 +14,33 @@ function DashboardSkeleton() {
     <div className="max-w-6xl mx-auto px-4 py-8">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="space-y-6">
-          <div className="bg-white rounded-2xl p-6 shadow-sm animate-pulse">
-            <div className="h-6 bg-[#f5f5f7] rounded-xl w-2/3 mb-3" />
-            <div className="h-4 bg-[#f5f5f7] rounded-xl w-1/2 mb-4" />
+          <div className="bg-white rounded-xl p-6 shadow-sm animate-pulse">
+            <div className="h-6 bg-[#f5f3ee] rounded-xl w-2/3 mb-3" />
+            <div className="h-4 bg-[#f5f3ee] rounded-xl w-1/2 mb-4" />
             <div className="flex gap-2">
-              <div className="h-7 bg-[#f5f5f7] rounded-full w-24" />
-              <div className="h-7 bg-[#f5f5f7] rounded-full w-20" />
+              <div className="h-7 bg-[#f5f3ee] rounded-full w-24" />
+              <div className="h-7 bg-[#f5f3ee] rounded-full w-20" />
             </div>
           </div>
-          <div className="bg-white rounded-2xl p-6 shadow-sm animate-pulse">
-            <div className="h-5 bg-[#f5f5f7] rounded-xl w-40 mx-auto mb-4" />
-            <div className="w-[200px] h-[200px] bg-[#f5f5f7] rounded-2xl mx-auto" />
+          <div className="bg-white rounded-xl p-6 shadow-sm animate-pulse">
+            <div className="h-5 bg-[#f5f3ee] rounded-xl w-40 mx-auto mb-4" />
+            <div className="w-[200px] h-[200px] bg-[#f5f3ee] rounded-xl mx-auto" />
           </div>
         </div>
         <div className="lg:col-span-2 space-y-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="bg-white rounded-2xl p-5 shadow-sm animate-pulse">
-                <div className="w-5 h-5 bg-[#f5f5f7] rounded-full mx-auto mb-3" />
-                <div className="h-8 bg-[#f5f5f7] rounded-xl w-12 mx-auto mb-2" />
-                <div className="h-3 bg-[#f5f5f7] rounded-xl w-16 mx-auto" />
+              <div key={i} className="bg-white rounded-xl p-5 shadow-sm animate-pulse">
+                <div className="w-5 h-5 bg-[#f5f3ee] rounded-full mx-auto mb-3" />
+                <div className="h-8 bg-[#f5f3ee] rounded-xl w-12 mx-auto mb-2" />
+                <div className="h-3 bg-[#f5f3ee] rounded-xl w-16 mx-auto" />
               </div>
             ))}
           </div>
           {[1, 2].map((i) => (
-            <div key={i} className="bg-white rounded-2xl p-6 shadow-sm animate-pulse">
-              <div className="h-5 bg-[#f5f5f7] rounded-xl w-40 mb-4" />
-              <div className="h-16 bg-[#f5f5f7] rounded-xl" />
+            <div key={i} className="bg-white rounded-xl p-6 shadow-sm animate-pulse">
+              <div className="h-5 bg-[#f5f3ee] rounded-xl w-40 mb-4" />
+              <div className="h-16 bg-[#f5f3ee] rounded-xl" />
             </div>
           ))}
         </div>
@@ -345,17 +345,17 @@ RECOMMENDATION: (1 sentence recommendation for future connections)`
       <div className="max-w-6xl mx-auto px-4 py-8">
         {/* Agent Switcher */}
         {agents.length > 1 && (
-          <div className="bg-white rounded-2xl p-4 shadow-sm mb-6">
+          <div className="bg-white rounded-xl border border-[#e2e8f0] p-4 shadow-sm mb-6">
             <div className="flex items-center gap-2 flex-wrap">
-              <span className="text-sm text-[#86868b] mr-1">Your Agents:</span>
+              <span className="text-sm text-[#94a3b8] mr-1">Your Agents:</span>
               {agents.map((ag) => (
                 <button
                   key={ag.id}
                   onClick={() => switchAgent(ag)}
-                  className={`inline-flex items-center px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
+                  className={`inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
                     ag.id === agent.id
-                      ? 'bg-[#0071e3] text-white'
-                      : 'bg-[#f5f5f7] text-[#6e6e73] hover:bg-[#e8e8ed]'
+                      ? 'bg-[#0a1628] text-white'
+                      : 'bg-[#f5f3ee] text-[#64748b] hover:bg-[#e8e5de]'
                   }`}
                 >
                   {ag.agent_name}
@@ -363,7 +363,7 @@ RECOMMENDATION: (1 sentence recommendation for future connections)`
               ))}
               <button
                 onClick={() => navigate('/register')}
-                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium border border-dashed border-black/10 text-[#6e6e73] hover:bg-[#f5f5f7] transition-all duration-200"
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium border border-dashed border-[#e2e8f0] text-[#64748b] hover:bg-[#f5f3ee] transition-all duration-200"
               >
                 <Plus className="w-3.5 h-3.5" />
                 Create New Agent
@@ -376,7 +376,7 @@ RECOMMENDATION: (1 sentence recommendation for future connections)`
           <div className="flex justify-end mb-4">
             <button
               onClick={() => navigate('/register')}
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium bg-[#f5f5f7] text-[#6e6e73] hover:bg-[#e8e8ed] transition-all duration-200"
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium bg-[#f5f3ee] text-[#64748b] hover:bg-[#e8e5de] transition-all duration-200"
             >
               <Plus className="w-3.5 h-3.5" />
               Create New Agent
@@ -388,39 +388,39 @@ RECOMMENDATION: (1 sentence recommendation for future connections)`
           {/* LEFT COLUMN */}
           <div className="space-y-6">
             {/* Agent Card */}
-            <div className="bg-white rounded-2xl p-6 shadow-sm">
-              <h2 className="text-xl font-bold text-[#1d1d1f] tracking-tight">{agent.agent_name}</h2>
-              <p className="text-[#6e6e73] text-sm mt-1">{agent.company}</p>
+            <div className="bg-white rounded-xl border border-[#e2e8f0] p-6 shadow-sm">
+              <h2 className="text-xl font-bold text-[#0f172a] tracking-tight">{agent.agent_name}</h2>
+              <p className="text-[#64748b] text-sm mt-1">{agent.company}</p>
               <div className="flex gap-2 mt-4 flex-wrap">
-                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-[#0071e3]/10 text-[#0071e3]">{agent.agent_type}</span>
-                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-purple-500/10 text-purple-600">{agent.llm_platform}</span>
+                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-[#fef3c7] text-[#92400e]">{agent.agent_type}</span>
+                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-[#0ea5e9]/10 text-[#0ea5e9]">{agent.llm_platform}</span>
               </div>
               <div className="flex items-center gap-2 mt-3 flex-wrap">
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-[#34c759]/10 text-[#34c759]">
-                  <div className="w-2 h-2 rounded-full bg-[#34c759]" /> Active
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-[#edf5f0] text-[#2d6b4a]">
+                  <div className="w-2 h-2 rounded-full bg-[#2d6b4a]" /> Active
                 </span>
               </div>
 
             </div>
 
             {/* LLM Settings */}
-            <div className="bg-white rounded-2xl p-6 shadow-sm">
-              <h3 className="font-semibold text-[#1d1d1f] mb-1">Agent LLM Settings</h3>
-              <p className="text-sm text-[#86868b] mb-4">Your key. Your cost. Never shared.</p>
+            <div className="bg-white rounded-xl border border-[#e2e8f0] p-6 shadow-sm">
+              <h3 className="font-semibold text-[#0f172a] mb-1">Agent LLM Settings</h3>
+              <p className="text-sm text-[#94a3b8] mb-4">Your key. Your cost. Never shared.</p>
               <ApiKeySettings agent={agent} onUpdate={() => loadAgents()} />
             </div>
 
             {/* QR Section */}
-            <div className="bg-white rounded-2xl p-6 shadow-sm text-center">
-              <h3 className="font-semibold text-[#1d1d1f] mb-1">Your Agent QR Code</h3>
-              <p className="text-sm text-[#86868b] mb-4">Share this so other agents can connect</p>
+            <div className="bg-white rounded-xl border border-[#e2e8f0] p-6 shadow-sm text-center">
+              <h3 className="font-semibold text-[#0f172a] mb-1">Your Agent QR Code</h3>
+              <p className="text-sm text-[#94a3b8] mb-4">Share this so other agents can connect</p>
               <QRDisplay agent={agent} />
             </div>
 
             {/* Knowledge Base */}
-            <div className="bg-white rounded-2xl p-6 shadow-sm">
-              <h3 className="font-semibold text-[#1d1d1f] mb-1">Knowledge Base</h3>
-              <p className="text-sm text-[#86868b] mb-4">Upload documents for your agent's learning</p>
+            <div className="bg-white rounded-xl border border-[#e2e8f0] p-6 shadow-sm">
+              <h3 className="font-semibold text-[#0f172a] mb-1">Knowledge Base</h3>
+              <p className="text-sm text-[#94a3b8] mb-4">Upload documents for your agent's learning</p>
               <DocumentManager agent={agent} />
             </div>
           </div>
@@ -429,64 +429,64 @@ RECOMMENDATION: (1 sentence recommendation for future connections)`
           <div className="lg:col-span-2 space-y-6">
             {/* Stats Row */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-              <div className="bg-white rounded-2xl p-5 shadow-sm text-center hover:shadow-md transition-shadow duration-200">
-                <Clock className="w-5 h-5 mx-auto text-[#ff9500] mb-2" />
-                <p className="text-3xl font-bold text-[#1d1d1f] tracking-tight">{pending.length}</p>
-                <p className="text-xs text-[#86868b] mt-1">Pending</p>
+              <div className="bg-white rounded-xl border border-[#e2e8f0] p-5 shadow-sm text-center hover:shadow-md transition-shadow duration-200">
+                <Clock className="w-5 h-5 mx-auto text-[#f59e0b] mb-2" />
+                <p className="text-3xl font-bold text-[#0a1628] tracking-tight">{pending.length}</p>
+                <p className="text-xs text-[#94a3b8] mt-1">Pending</p>
               </div>
-              <div className="bg-white rounded-2xl p-5 shadow-sm text-center hover:shadow-md transition-shadow duration-200">
-                <Zap className="w-5 h-5 mx-auto text-[#34c759] mb-2" />
-                <p className="text-3xl font-bold text-[#1d1d1f] tracking-tight">{active.length}</p>
-                <p className="text-xs text-[#86868b] mt-1">Active</p>
+              <div className="bg-white rounded-xl border border-[#e2e8f0] p-5 shadow-sm text-center hover:shadow-md transition-shadow duration-200">
+                <Zap className="w-5 h-5 mx-auto text-[#2d6b4a] mb-2" />
+                <p className="text-3xl font-bold text-[#0a1628] tracking-tight">{active.length}</p>
+                <p className="text-xs text-[#94a3b8] mt-1">Active</p>
               </div>
-              <div className="bg-white rounded-2xl p-5 shadow-sm text-center hover:shadow-md transition-shadow duration-200">
-                <Users className="w-5 h-5 mx-auto text-[#0071e3] mb-2" />
-                <p className="text-3xl font-bold text-[#1d1d1f] tracking-tight">{totalConnections}</p>
-                <p className="text-xs text-[#86868b] mt-1">Total</p>
+              <div className="bg-white rounded-xl border border-[#e2e8f0] p-5 shadow-sm text-center hover:shadow-md transition-shadow duration-200">
+                <Users className="w-5 h-5 mx-auto text-[#0ea5e9] mb-2" />
+                <p className="text-3xl font-bold text-[#0a1628] tracking-tight">{totalConnections}</p>
+                <p className="text-xs text-[#94a3b8] mt-1">Total</p>
               </div>
-              <div className="bg-white rounded-2xl p-5 shadow-sm text-center hover:shadow-md transition-shadow duration-200">
-                <Shield className="w-5 h-5 mx-auto text-[#34c759] mb-2" />
-                <p className="text-2xl font-bold text-[#34c759] tracking-tight">Online</p>
-                <p className="text-xs text-[#86868b] mt-1">Status</p>
+              <div className="bg-white rounded-xl border border-[#e2e8f0] p-5 shadow-sm text-center hover:shadow-md transition-shadow duration-200">
+                <Shield className="w-5 h-5 mx-auto text-[#2d6b4a] mb-2" />
+                <p className="text-2xl font-bold text-[#2d6b4a] tracking-tight">Online</p>
+                <p className="text-xs text-[#94a3b8] mt-1">Status</p>
               </div>
             </div>
 
             {/* Pending Requests */}
             <div>
-              <h3 className="text-lg font-semibold text-[#1d1d1f] tracking-tight mb-3">Pending Requests</h3>
+              <h3 className="text-lg font-serif font-semibold text-[#0f172a] tracking-tight mb-3">Pending Requests</h3>
               {pending.length === 0 ? (
-                <div className="bg-white rounded-2xl p-10 shadow-sm text-center">
-                  <Clock className="w-10 h-10 mx-auto text-[#86868b]/30 mb-3" />
-                  <p className="text-[#6e6e73] font-medium">No pending requests</p>
-                  <p className="text-sm text-[#86868b]">Share your QR code to receive connections</p>
+                <div className="bg-white rounded-xl border border-[#e2e8f0] p-10 shadow-sm text-center">
+                  <Clock className="w-10 h-10 mx-auto text-[#94a3b8]/30 mb-3" />
+                  <p className="text-[#64748b] font-medium">No pending requests</p>
+                  <p className="text-sm text-[#94a3b8]">Share your QR code to receive connections</p>
                 </div>
               ) : (
                 <div className="space-y-3">
                   {pending.map((conn) => (
-                    <div key={conn.id} className="bg-white rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow duration-200">
+                    <div key={conn.id} className="bg-white rounded-xl border border-[#e2e8f0] p-5 shadow-sm hover:shadow-md transition-shadow duration-200">
                       <div className="flex items-start justify-between">
                         <div>
-                          <p className="font-semibold text-[#1d1d1f]">{conn.requester?.agent_name}</p>
-                          <p className="text-sm text-[#6e6e73]">{conn.requester?.company}</p>
+                          <p className="font-semibold text-[#0f172a]">{conn.requester?.agent_name}</p>
+                          <p className="text-sm text-[#64748b]">{conn.requester?.company}</p>
                           <div className="flex gap-2 mt-2 flex-wrap">
-                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#0071e3]/10 text-[#0071e3]">{conn.requester?.agent_type}</span>
-                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-500/10 text-purple-600">{conn.requester?.llm_platform}</span>
+                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#fef3c7] text-[#92400e]">{conn.requester?.agent_type}</span>
+                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#0ea5e9]/10 text-[#0ea5e9]">{conn.requester?.llm_platform}</span>
                           </div>
-                          {conn.purpose && <p className="text-sm text-[#1d1d1f] mt-2 italic">"{conn.purpose}"</p>}
-                          <p className="text-xs text-[#86868b] mt-1">{timeAgo(conn.created_at)}</p>
+                          {conn.purpose && <p className="text-sm text-[#0f172a] mt-2 italic">"{conn.purpose}"</p>}
+                          <p className="text-xs text-[#94a3b8] mt-1">{timeAgo(conn.created_at)}</p>
                         </div>
                         <div className="flex gap-2 flex-shrink-0">
                           <button
                             onClick={() => approve(conn)}
                             disabled={actionLoading === conn.id}
-                            className="bg-[#34c759] hover:bg-[#30b350] text-white rounded-full px-5 py-2 text-sm font-medium disabled:opacity-50 transition-all duration-200"
+                            className="bg-[#2d6b4a] hover:bg-[#245a3e] text-white rounded-lg px-5 py-2 text-sm font-medium disabled:opacity-50 transition-all duration-200"
                           >
                             Approve
                           </button>
                           <button
                             onClick={() => decline(conn)}
                             disabled={actionLoading === conn.id}
-                            className="bg-[#ff3b30]/10 text-[#ff3b30] rounded-full px-5 py-2 text-sm font-medium hover:bg-[#ff3b30]/20 disabled:opacity-50 transition-all duration-200"
+                            className="bg-red-50 text-red-600 rounded-lg px-5 py-2 text-sm font-medium hover:bg-red-100 disabled:opacity-50 transition-all duration-200"
                           >
                             Decline
                           </button>
@@ -500,11 +500,11 @@ RECOMMENDATION: (1 sentence recommendation for future connections)`
 
             {/* Active Connections */}
             <div>
-              <h3 className="text-lg font-semibold text-[#1d1d1f] tracking-tight mb-3">Active Connections</h3>
+              <h3 className="text-lg font-serif font-semibold text-[#0f172a] tracking-tight mb-3">Active Connections</h3>
               {active.length === 0 ? (
-                <div className="bg-white rounded-2xl p-10 shadow-sm text-center">
-                  <Users className="w-10 h-10 mx-auto text-[#86868b]/30 mb-3" />
-                  <p className="text-[#6e6e73] font-medium">No active connections yet</p>
+                <div className="bg-white rounded-xl border border-[#e2e8f0] p-10 shadow-sm text-center">
+                  <Users className="w-10 h-10 mx-auto text-[#94a3b8]/30 mb-3" />
+                  <p className="text-[#64748b] font-medium">No active connections yet</p>
                 </div>
               ) : (
                 <div className="space-y-3">
@@ -512,40 +512,40 @@ RECOMMENDATION: (1 sentence recommendation for future connections)`
                     const other = otherAgent(conn)
                     const msgCount = unapprovedCounts[conn.id] || 0
                     return (
-                      <div key={conn.id} className="bg-white rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow duration-200">
+                      <div key={conn.id} className="bg-white rounded-xl border border-[#e2e8f0] p-5 shadow-sm hover:shadow-md transition-shadow duration-200">
                         <div className="flex items-center justify-between">
                           <div>
                             <div className="flex items-center gap-2">
-                              <p className="font-semibold text-[#1d1d1f]">{other?.agent_name}</p>
+                              <p className="font-semibold text-[#0f172a]">{other?.agent_name}</p>
                               {msgCount > 0 && (
                                 <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-[#ff3b30] text-white text-xs font-bold">
                                   {msgCount}
                                 </span>
                               )}
                             </div>
-                            <p className="text-sm text-[#6e6e73]">{other?.company}</p>
+                            <p className="text-sm text-[#64748b]">{other?.company}</p>
                             <div className="flex gap-2 mt-2 flex-wrap">
-                              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#0071e3]/10 text-[#0071e3]">{other?.agent_type}</span>
-                              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-500/10 text-purple-600">{other?.llm_platform}</span>
+                              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#fef3c7] text-[#92400e]">{other?.agent_type}</span>
+                              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#0ea5e9]/10 text-[#0ea5e9]">{other?.llm_platform}</span>
                             </div>
-                            <p className="text-xs text-[#86868b] mt-1">Connected {timeAgo(conn.approved_at || conn.created_at)}</p>
+                            <p className="text-xs text-[#94a3b8] mt-1">Connected {timeAgo(conn.approved_at || conn.created_at)}</p>
                           </div>
                           <div className="flex gap-2 flex-shrink-0">
                             <button
                               onClick={() => navigate(`/session/${conn.id}`)}
-                              className="bg-[#0071e3] hover:bg-[#0077ED] text-white rounded-full px-5 py-2 text-sm font-medium transition-all duration-200"
+                              className="bg-[#0a1628] hover:bg-[#1e3a5f] text-white rounded-lg px-5 py-2 text-sm font-medium transition-all duration-200"
                             >
                               Open Session
                             </button>
                             <button
                               onClick={() => navigate(`/audit/${conn.id}`)}
-                              className="bg-[#f5f5f7] hover:bg-[#e8e8ed] text-[#1d1d1f] rounded-full px-5 py-2 text-sm font-medium transition-all duration-200"
+                              className="bg-[#f5f3ee] hover:bg-[#e8e5de] text-[#0f172a] rounded-lg px-5 py-2 text-sm font-medium transition-all duration-200"
                             >
                               View Audit
                             </button>
                             <button
                               onClick={() => setRevokeTarget(conn)}
-                              className="text-[#ff3b30] hover:bg-[#ff3b30]/5 rounded-full px-4 py-2 text-sm font-medium transition-all duration-200"
+                              className="text-red-600 hover:bg-red-50 rounded-lg px-4 py-2 text-sm font-medium transition-all duration-200"
                             >
                               Revoke
                             </button>
@@ -560,18 +560,18 @@ RECOMMENDATION: (1 sentence recommendation for future connections)`
             {/* Closed Connections (Completed + Revoked) */}
             {closedConnections.length > 0 && (
               <div>
-                <h3 className="text-lg font-semibold text-[#1d1d1f] tracking-tight mb-3">Past Sessions</h3>
+                <h3 className="text-lg font-serif font-semibold text-[#0f172a] tracking-tight mb-3">Past Sessions</h3>
                 <div className="space-y-3">
                   {closedConnections.map((conn) => {
                     const other = otherAgent(conn)
                     return (
-                      <div key={conn.id} className="bg-white rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow duration-200 opacity-90">
+                      <div key={conn.id} className="bg-white rounded-xl border border-[#e2e8f0] p-5 shadow-sm hover:shadow-md transition-shadow duration-200 opacity-90">
                         <div className="flex items-center justify-between">
                           <div>
                             <div className="flex items-center gap-2">
-                              <p className="font-semibold text-[#1d1d1f]">{other?.agent_name}</p>
+                              <p className="font-semibold text-[#0f172a]">{other?.agent_name}</p>
                               {conn.status === 'completed' ? (
-                                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#34c759]/10 text-[#34c759]">
+                                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#edf5f0] text-[#2d6b4a]">
                                   <CheckCircle className="w-3 h-3" /> Completed
                                 </span>
                               ) : (
@@ -580,31 +580,31 @@ RECOMMENDATION: (1 sentence recommendation for future connections)`
                                 </span>
                               )}
                             </div>
-                            <p className="text-sm text-[#6e6e73]">{other?.company}</p>
+                            <p className="text-sm text-[#64748b]">{other?.company}</p>
                             <div className="flex gap-2 mt-2 flex-wrap">
-                              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#0071e3]/10 text-[#0071e3]">{other?.agent_type}</span>
-                              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-500/10 text-purple-600">{other?.llm_platform}</span>
+                              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#fef3c7] text-[#92400e]">{other?.agent_type}</span>
+                              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#0ea5e9]/10 text-[#0ea5e9]">{other?.llm_platform}</span>
                             </div>
-                            {conn.purpose && <p className="text-xs text-[#86868b] mt-1 italic">"{conn.purpose}"</p>}
-                            <p className="text-xs text-[#86868b] mt-1">{timeAgo(conn.created_at)}</p>
+                            {conn.purpose && <p className="text-xs text-[#94a3b8] mt-1 italic">"{conn.purpose}"</p>}
+                            <p className="text-xs text-[#94a3b8] mt-1">{timeAgo(conn.created_at)}</p>
                           </div>
                           <div className="flex gap-2 flex-shrink-0">
                             <button
                               onClick={() => generateReport(conn)}
-                              className="bg-[#0071e3] hover:bg-[#0077ED] text-white rounded-full px-5 py-2 text-sm font-medium transition-all duration-200 flex items-center gap-1.5"
+                              className="bg-[#0ea5e9] hover:bg-[#0284c7] text-white rounded-lg px-5 py-2 text-sm font-medium transition-all duration-200 flex items-center gap-1.5"
                             >
                               <FileText className="w-3.5 h-3.5" />
                               Report
                             </button>
                             <button
                               onClick={() => navigate(`/audit/${conn.id}`)}
-                              className="bg-[#f5f5f7] hover:bg-[#e8e8ed] text-[#1d1d1f] rounded-full px-5 py-2 text-sm font-medium transition-all duration-200"
+                              className="bg-[#f5f3ee] hover:bg-[#e8e5de] text-[#0f172a] rounded-lg px-5 py-2 text-sm font-medium transition-all duration-200"
                             >
                               Audit
                             </button>
                             <button
                               onClick={() => navigate(`/session/${conn.id}`)}
-                              className="bg-[#f5f5f7] hover:bg-[#e8e8ed] text-[#1d1d1f] rounded-full px-5 py-2 text-sm font-medium transition-all duration-200"
+                              className="bg-[#f5f3ee] hover:bg-[#e8e5de] text-[#0f172a] rounded-lg px-5 py-2 text-sm font-medium transition-all duration-200"
                             >
                               View
                             </button>
@@ -623,20 +623,20 @@ RECOMMENDATION: (1 sentence recommendation for future connections)`
       {/* Report Modal */}
       {reportModal && (
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 px-4">
-          <div className="bg-white rounded-2xl p-6 max-w-2xl w-full shadow-2xl max-h-[80vh] overflow-y-auto">
+          <div className="bg-white rounded-xl p-6 max-w-2xl w-full shadow-2xl max-h-[80vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-5">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-[#0071e3]/10 flex items-center justify-center">
-                  <FileText className="w-5 h-5 text-[#0071e3]" />
+                <div className="w-10 h-10 rounded-full bg-[#0ea5e9]/10 flex items-center justify-center">
+                  <FileText className="w-5 h-5 text-[#0ea5e9]" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-[#1d1d1f]">Connection Report</h3>
-                  <p className="text-xs text-[#86868b]">{reportModal.id.slice(0, 8)} — {otherAgent(reportModal)?.agent_name}</p>
+                  <h3 className="font-semibold text-[#0f172a]">Connection Report</h3>
+                  <p className="text-xs text-[#94a3b8]">{reportModal.id.slice(0, 8)} — {otherAgent(reportModal)?.agent_name}</p>
                 </div>
               </div>
               <button
                 onClick={() => { setReportModal(null); setReportContent(null) }}
-                className="text-[#86868b] hover:text-[#1d1d1f] transition-colors"
+                className="text-[#94a3b8] hover:text-[#0f172a] transition-colors"
               >
                 <XCircle className="w-5 h-5" />
               </button>
@@ -644,48 +644,48 @@ RECOMMENDATION: (1 sentence recommendation for future connections)`
 
             {reportLoading ? (
               <div className="py-12 text-center">
-                <div className="w-8 h-8 border-[3px] border-[#0071e3]/20 border-t-[#0071e3] rounded-full animate-spin mx-auto mb-3" />
-                <p className="text-[#6e6e73] text-sm">Generating report...</p>
+                <div className="w-8 h-8 border-[3px] border-[#0a1628]/20 border-t-[#0a1628] rounded-full animate-spin mx-auto mb-3" />
+                <p className="text-[#64748b] text-sm">Generating report...</p>
               </div>
             ) : reportContent ? (
               <div className="space-y-4">
                 {/* Stats */}
                 <div className="grid grid-cols-3 gap-3">
-                  <div className="bg-[#f5f5f7] rounded-xl p-3 text-center">
-                    <p className="text-2xl font-bold text-[#1d1d1f]">{reportContent.messages}</p>
-                    <p className="text-xs text-[#86868b]">Messages</p>
+                  <div className="bg-[#f5f3ee] rounded-xl p-3 text-center">
+                    <p className="text-2xl font-bold text-[#0a1628]">{reportContent.messages}</p>
+                    <p className="text-xs text-[#94a3b8]">Messages</p>
                   </div>
-                  <div className="bg-[#f5f5f7] rounded-xl p-3 text-center">
-                    <p className="text-2xl font-bold text-[#1d1d1f]">{reportContent.events}</p>
-                    <p className="text-xs text-[#86868b]">Events</p>
+                  <div className="bg-[#f5f3ee] rounded-xl p-3 text-center">
+                    <p className="text-2xl font-bold text-[#0a1628]">{reportContent.events}</p>
+                    <p className="text-xs text-[#94a3b8]">Events</p>
                   </div>
-                  <div className={`rounded-xl p-3 text-center ${reportModal.status === 'completed' ? 'bg-[#34c759]/10' : 'bg-[#ff3b30]/10'}`}>
-                    <p className={`text-lg font-bold capitalize ${reportModal.status === 'completed' ? 'text-[#34c759]' : 'text-[#ff3b30]'}`}>{reportModal.status}</p>
-                    <p className="text-xs text-[#86868b]">Status</p>
+                  <div className={`rounded-xl p-3 text-center ${reportModal.status === 'completed' ? 'bg-[#edf5f0]' : 'bg-[#ff3b30]/10'}`}>
+                    <p className={`text-lg font-bold capitalize ${reportModal.status === 'completed' ? 'text-[#2d6b4a]' : 'text-[#ff3b30]'}`}>{reportModal.status}</p>
+                    <p className="text-xs text-[#94a3b8]">Status</p>
                   </div>
                 </div>
 
                 {/* Summary */}
-                <div className="bg-[#f5f5f7] rounded-xl p-4">
-                  <p className="text-xs font-medium text-[#86868b] uppercase tracking-wider mb-1">Summary</p>
-                  <p className="text-sm text-[#1d1d1f]">{reportContent.summary}</p>
+                <div className="bg-[#f5f3ee] rounded-xl p-4">
+                  <p className="text-xs font-medium text-[#94a3b8] uppercase tracking-wider mb-1">Summary</p>
+                  <p className="text-sm text-[#0f172a]">{reportContent.summary}</p>
                 </div>
 
                 {/* Outcome */}
                 {reportContent.outcome && (
-                  <div className="bg-[#f5f5f7] rounded-xl p-4">
-                    <p className="text-xs font-medium text-[#86868b] uppercase tracking-wider mb-1">Outcome</p>
-                    <p className="text-sm text-[#1d1d1f]">{reportContent.outcome}</p>
+                  <div className="bg-[#f5f3ee] rounded-xl p-4">
+                    <p className="text-xs font-medium text-[#94a3b8] uppercase tracking-wider mb-1">Outcome</p>
+                    <p className="text-sm text-[#0f172a]">{reportContent.outcome}</p>
                   </div>
                 )}
 
                 {/* Key Topics */}
                 {reportContent.keyTopics && (
-                  <div className="bg-[#f5f5f7] rounded-xl p-4">
-                    <p className="text-xs font-medium text-[#86868b] uppercase tracking-wider mb-2">Key Topics</p>
+                  <div className="bg-[#f5f3ee] rounded-xl p-4">
+                    <p className="text-xs font-medium text-[#94a3b8] uppercase tracking-wider mb-2">Key Topics</p>
                     <div className="flex flex-wrap gap-2">
                       {reportContent.keyTopics.split(',').map((topic, i) => (
-                        <span key={i} className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-white text-[#1d1d1f]">
+                        <span key={i} className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-white text-[#0f172a]">
                           {topic.trim()}
                         </span>
                       ))}
@@ -695,17 +695,17 @@ RECOMMENDATION: (1 sentence recommendation for future connections)`
 
                 {/* Action Items */}
                 {reportContent.actionItems && (
-                  <div className="bg-[#f5f5f7] rounded-xl p-4">
-                    <p className="text-xs font-medium text-[#86868b] uppercase tracking-wider mb-1">Action Items</p>
-                    <p className="text-sm text-[#1d1d1f]">{reportContent.actionItems}</p>
+                  <div className="bg-[#f5f3ee] rounded-xl p-4">
+                    <p className="text-xs font-medium text-[#94a3b8] uppercase tracking-wider mb-1">Action Items</p>
+                    <p className="text-sm text-[#0f172a]">{reportContent.actionItems}</p>
                   </div>
                 )}
 
                 {/* Recommendation */}
                 {reportContent.recommendation && (
-                  <div className="bg-[#0071e3]/5 rounded-xl p-4">
-                    <p className="text-xs font-medium text-[#0071e3] uppercase tracking-wider mb-1">Recommendation</p>
-                    <p className="text-sm text-[#1d1d1f]">{reportContent.recommendation}</p>
+                  <div className="bg-[#0ea5e9]/5 rounded-xl p-4">
+                    <p className="text-xs font-medium text-[#0ea5e9] uppercase tracking-wider mb-1">Recommendation</p>
+                    <p className="text-sm text-[#0f172a]">{reportContent.recommendation}</p>
                   </div>
                 )}
 
@@ -713,14 +713,14 @@ RECOMMENDATION: (1 sentence recommendation for future connections)`
                 <div className="flex gap-3 pt-2">
                   <button
                     onClick={downloadReport}
-                    className="bg-[#0071e3] hover:bg-[#0077ED] text-white rounded-full px-5 py-2.5 text-sm font-medium transition-all duration-200 flex items-center gap-1.5"
+                    className="bg-[#0a1628] hover:bg-[#1e3a5f] text-white rounded-lg px-5 py-2.5 text-sm font-medium transition-all duration-200 flex items-center gap-1.5"
                   >
                     <FileText className="w-4 h-4" />
                     Download Report
                   </button>
                   <button
                     onClick={() => navigate(`/audit/${reportModal.id}`)}
-                    className="bg-[#f5f5f7] hover:bg-[#e8e8ed] text-[#1d1d1f] rounded-full px-5 py-2.5 text-sm font-medium transition-all duration-200"
+                    className="bg-[#f5f3ee] hover:bg-[#e8e5de] text-[#0f172a] rounded-lg px-5 py-2.5 text-sm font-medium transition-all duration-200"
                   >
                     View Full Audit
                   </button>
@@ -734,35 +734,35 @@ RECOMMENDATION: (1 sentence recommendation for future connections)`
       {/* Revoke Confirmation Modal */}
       {revokeTarget && (
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 px-4">
-          <div className="bg-white rounded-2xl p-6 max-w-md w-full shadow-2xl">
+          <div className="bg-white rounded-xl p-6 max-w-md w-full shadow-2xl">
             <div className="flex items-center gap-3 mb-4">
               <div className="w-10 h-10 rounded-full bg-[#ff3b30]/10 flex items-center justify-center flex-shrink-0">
                 <XCircle className="w-5 h-5 text-[#ff3b30]" />
               </div>
               <div>
-                <h3 className="font-semibold text-[#1d1d1f]">Revoke Connection</h3>
-                <p className="text-sm text-[#6e6e73]">
+                <h3 className="font-semibold text-[#0f172a]">Revoke Connection</h3>
+                <p className="text-sm text-[#64748b]">
                   This will end your connection with{' '}
-                  <span className="font-medium text-[#1d1d1f]">
+                  <span className="font-medium text-[#0f172a]">
                     {otherAgent(revokeTarget)?.agent_name}
                   </span>
                 </p>
               </div>
             </div>
-            <p className="text-sm text-[#6e6e73] mb-6">
+            <p className="text-sm text-[#64748b] mb-6">
               This action cannot be undone. The other agent will no longer be able to send messages in this session.
             </p>
             <div className="flex gap-3 justify-end">
               <button
                 onClick={() => setRevokeTarget(null)}
-                className="bg-[#f5f5f7] hover:bg-[#e8e8ed] text-[#1d1d1f] rounded-full px-5 py-2.5 text-sm font-medium transition-all duration-200"
+                className="bg-[#f5f3ee] hover:bg-[#e8e5de] text-[#0f172a] rounded-lg px-5 py-2.5 text-sm font-medium transition-all duration-200"
               >
                 Cancel
               </button>
               <button
                 onClick={() => revokeConnection(revokeTarget)}
                 disabled={actionLoading === revokeTarget.id}
-                className="bg-[#ff3b30] hover:bg-[#ff453a] text-white rounded-full px-5 py-2.5 text-sm font-medium disabled:opacity-50 transition-all duration-200"
+                className="bg-[#ff3b30] hover:bg-[#ff453a] text-white rounded-lg px-5 py-2.5 text-sm font-medium disabled:opacity-50 transition-all duration-200"
               >
                 {actionLoading === revokeTarget.id ? 'Revoking...' : 'Revoke Connection'}
               </button>

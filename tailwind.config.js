@@ -2,7 +2,13 @@
 export default {
   content: ["./index.html","./src/**/*.{js,jsx}"],
   theme: {
-    extend: {},
+    extend: {
+      fontFamily: {
+        sans: ['"DM Sans"', 'system-ui', 'sans-serif'],
+        serif: ['"DM Serif Display"', 'serif'],
+        mono: ['"DM Mono"', 'monospace'],
+      },
+    },
   },
   plugins: [],
 }

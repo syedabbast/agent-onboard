@@ -76,9 +76,9 @@ export default function Audit() {
   }
 
   const getDotColor = (entry) => {
-    if (!entry.agent_id) return 'bg-[#34c759]'
-    if (entry.agent_id === myAgent?.id) return 'bg-[#0071e3]'
-    return 'bg-[#ff9500]'
+    if (!entry.agent_id) return 'bg-[#2d6b4a]'
+    if (entry.agent_id === myAgent?.id) return 'bg-[#0a1628]'
+    return 'bg-[#f59e0b]'
   }
 
   if (loading) return <Layout activeAgentName={myAgent?.agent_name}><Spinner /></Layout>
@@ -88,30 +88,30 @@ export default function Audit() {
       <div className="max-w-3xl mx-auto px-4 py-8">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-[#1d1d1f] tracking-tight">Audit Trail</h1>
+            <h1 className="text-3xl font-serif font-bold text-[#0f172a] tracking-tight">Audit Trail</h1>
           </div>
           <button
             onClick={() => navigate(`/session/${id}`)}
-            className="bg-[#f5f5f7] hover:bg-[#e8e8ed] text-[#1d1d1f] rounded-full px-5 py-2.5 text-sm font-medium transition-all duration-200"
+            className="bg-[#f5f3ee] hover:bg-[#e8e5de] text-[#0f172a] rounded-lg px-5 py-2.5 text-sm font-medium transition-all duration-200"
           >
             Back to Session
           </button>
         </div>
 
         {/* Summary */}
-        <div className="bg-white rounded-2xl p-5 shadow-sm mb-8">
+        <div className="bg-white rounded-xl border border-[#e2e8f0] p-5 shadow-sm mb-8">
           <div className="grid grid-cols-3 gap-4 text-center">
             <div>
-              <p className="text-xs text-[#86868b]">Session ID</p>
-              <p className="font-mono text-sm font-medium text-[#1d1d1f] mt-1">{id.slice(0, 8)}</p>
+              <p className="text-xs text-[#94a3b8]">Session ID</p>
+              <p className="font-mono text-sm font-medium text-[#0f172a] mt-1">{id.slice(0, 8)}</p>
             </div>
             <div>
-              <p className="text-xs text-[#86868b]">Started</p>
-              <p className="text-sm font-medium text-[#1d1d1f] mt-1">{connection?.created_at ? new Date(connection.created_at).toLocaleString() : '-'}</p>
+              <p className="text-xs text-[#94a3b8]">Started</p>
+              <p className="text-sm font-medium text-[#0f172a] mt-1">{connection?.created_at ? new Date(connection.created_at).toLocaleString() : '-'}</p>
             </div>
             <div>
-              <p className="text-xs text-[#86868b]">Total Events</p>
-              <p className="text-sm font-medium text-[#1d1d1f] mt-1">{entries.length}</p>
+              <p className="text-xs text-[#94a3b8]">Total Events</p>
+              <p className="text-sm font-medium text-[#0f172a] mt-1">{entries.length}</p>
             </div>
           </div>
         </div>
@@ -122,22 +122,22 @@ export default function Audit() {
             const agent = agents[entry.agent_id]
             const hasMeta = entry.metadata && Object.keys(entry.metadata).length > 0
             return (
-              <div key={entry.id} className="bg-white rounded-2xl p-4 shadow-sm hover:shadow-md transition-shadow duration-200">
+              <div key={entry.id} className="bg-white rounded-xl border border-[#e2e8f0] p-4 shadow-sm hover:shadow-md transition-shadow duration-200">
                 <div className="flex items-start gap-3">
                   <div className={`w-3 h-3 rounded-full mt-1.5 flex-shrink-0 ${getDotColor(entry)}`} />
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between flex-wrap gap-1">
-                      <span className="text-sm font-medium text-[#1d1d1f]">{agent?.agent_name || 'System'}</span>
-                      <span className="text-xs text-[#86868b]">{new Date(entry.created_at).toLocaleString()}</span>
+                      <span className="text-sm font-medium text-[#0f172a]">{agent?.agent_name || 'System'}</span>
+                      <span className="text-xs text-[#94a3b8]">{new Date(entry.created_at).toLocaleString()}</span>
                     </div>
-                    <p className="text-sm text-[#6e6e73]">{actionLabels[entry.action] || entry.action}</p>
+                    <p className="text-sm text-[#64748b]">{actionLabels[entry.action] || entry.action}</p>
                     {hasMeta && (
                       <div className="mt-1.5">
-                        <button onClick={() => toggleExpand(entry.id)} className="text-xs text-[#0071e3] hover:bg-[#0071e3]/5 rounded-full px-2 py-0.5 transition-all duration-200">
+                        <button onClick={() => toggleExpand(entry.id)} className="text-xs text-[#0ea5e9] hover:bg-[#0ea5e9]/5 rounded-lg px-2 py-0.5 transition-all duration-200">
                           {expanded[entry.id] ? 'Hide details' : 'Show details'}
                         </button>
                         {expanded[entry.id] && (
-                          <pre className="mt-2 text-xs bg-[#f5f5f7] rounded-xl p-3 overflow-x-auto">{JSON.stringify(entry.metadata, null, 2)}</pre>
+                          <pre className="mt-2 text-xs bg-[#f5f3ee] rounded-xl p-3 overflow-x-auto">{JSON.stringify(entry.metadata, null, 2)}</pre>
                         )}
                       </div>
                     )}
@@ -147,15 +147,15 @@ export default function Audit() {
             )
           })}
           {entries.length === 0 && (
-            <div className="bg-white rounded-2xl p-10 shadow-sm text-center">
-              <p className="text-[#6e6e73]">No audit entries yet</p>
+            <div className="bg-white rounded-xl border border-[#e2e8f0] p-10 shadow-sm text-center">
+              <p className="text-[#64748b]">No audit entries yet</p>
             </div>
           )}
         </div>
 
         <button
           onClick={exportJSON}
-          className="bg-[#0071e3] hover:bg-[#0077ED] text-white rounded-full px-5 py-2.5 text-sm font-medium transition-all duration-200"
+          className="bg-[#0a1628] hover:bg-[#1e3a5f] text-white rounded-lg px-5 py-2.5 text-sm font-medium transition-all duration-200"
         >
           Export as JSON
         </button>

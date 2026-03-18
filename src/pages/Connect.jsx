@@ -108,18 +108,18 @@ export default function Connect() {
     setSending(false)
   }
 
-  if (loading) return <div className="min-h-screen bg-[#f5f5f7]"><Spinner /></div>
+  if (loading) return <div className="min-h-screen bg-[#fffef9]"><Spinner /></div>
 
   if (!targetAgent) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-white to-[#f5f5f7] flex items-center justify-center px-4">
-        <div className="bg-white rounded-2xl p-10 shadow-sm text-center max-w-md">
+      <div className="min-h-screen bg-[#fffef9] flex items-center justify-center px-4">
+        <div className="bg-white rounded-xl border border-[#e2e8f0] p-10 shadow-sm text-center max-w-md">
           <div className="w-16 h-16 rounded-full bg-[#ff3b30]/10 flex items-center justify-center mx-auto mb-4">
             <span className="text-2xl text-[#ff3b30]">!</span>
           </div>
-          <h2 className="text-xl font-bold text-[#1d1d1f] tracking-tight mb-2">Invalid Link</h2>
-          <p className="text-[#6e6e73] mb-6">This agent link is not valid or has expired.</p>
-          <button onClick={() => navigate('/auth')} className="bg-[#0071e3] hover:bg-[#0077ED] text-white rounded-full px-5 py-2.5 text-sm font-medium transition-all duration-200">
+          <h2 className="text-xl font-bold text-[#0f172a] tracking-tight mb-2">Invalid Link</h2>
+          <p className="text-[#64748b] mb-6">This agent link is not valid or has expired.</p>
+          <button onClick={() => navigate('/auth')} className="bg-[#0a1628] hover:bg-[#1e3a5f] text-white rounded-lg px-5 py-2.5 text-sm font-medium transition-all duration-200">
             Go to Agent OnBoard
           </button>
         </div>
@@ -128,48 +128,48 @@ export default function Connect() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white to-[#f5f5f7] flex items-center justify-center px-4 py-12">
+    <div className="min-h-screen bg-[#fffef9] flex items-center justify-center px-4 py-12">
       <div className="max-w-md w-full">
         {/* Agent Profile Card */}
-        <div className="bg-white rounded-2xl p-8 shadow-sm text-center mb-6">
-          <div className="w-24 h-24 rounded-full bg-[#0071e3] flex items-center justify-center mx-auto mb-5">
+        <div className="bg-white rounded-xl border border-[#e2e8f0] p-8 shadow-sm text-center mb-6">
+          <div className="w-24 h-24 rounded-full bg-[#0a1628] flex items-center justify-center mx-auto mb-5">
             <span className="text-3xl font-bold text-white">{getInitials(targetAgent.agent_name)}</span>
           </div>
-          <h2 className="text-2xl font-bold text-[#1d1d1f] tracking-tight">{targetAgent.agent_name}</h2>
-          <p className="text-[#6e6e73] mt-1">{targetAgent.company}</p>
+          <h2 className="text-2xl font-bold text-[#0f172a] tracking-tight">{targetAgent.agent_name}</h2>
+          <p className="text-[#64748b] mt-1">{targetAgent.company}</p>
           <div className="flex gap-2 mt-4 justify-center flex-wrap">
-            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-[#0071e3]/10 text-[#0071e3]">{targetAgent.agent_type}</span>
-            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-purple-500/10 text-purple-600">{targetAgent.llm_platform}</span>
+            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-[#fef3c7] text-[#92400e]">{targetAgent.agent_type}</span>
+            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-[#0ea5e9]/10 text-[#0ea5e9]">{targetAgent.llm_platform}</span>
           </div>
-          <div className="mt-5 flex items-center justify-center gap-1.5 text-[#34c759]">
+          <div className="mt-5 flex items-center justify-center gap-1.5 text-[#2d6b4a]">
             <Shield className="w-4 h-4" />
             <span className="text-sm font-medium">Verified by Agent OnBoard</span>
           </div>
-          <p className="text-xs text-[#86868b] mt-2">Powered by auwiretech.com</p>
+          <p className="text-xs text-[#94a3b8] mt-2">Powered by auwiretech.com</p>
         </div>
 
         {/* Auth-dependent section */}
         {authState === 'no_auth' && (
-          <div className="bg-white rounded-2xl p-6 shadow-sm text-center">
-            <p className="text-[#6e6e73] mb-4">Sign in to connect your agent</p>
-            <button onClick={() => navigate('/auth')} className="bg-[#0071e3] hover:bg-[#0077ED] text-white rounded-full px-5 py-2.5 text-sm font-medium transition-all duration-200">
+          <div className="bg-white rounded-xl border border-[#e2e8f0] p-6 shadow-sm text-center">
+            <p className="text-[#64748b] mb-4">Sign in to connect your agent</p>
+            <button onClick={() => navigate('/auth')} className="bg-[#0a1628] hover:bg-[#1e3a5f] text-white rounded-lg px-5 py-2.5 text-sm font-medium transition-all duration-200">
               Sign In
             </button>
           </div>
         )}
 
         {authState === 'no_agent' && (
-          <div className="bg-white rounded-2xl p-6 shadow-sm text-center">
-            <p className="text-[#6e6e73] mb-4">Register your agent first</p>
-            <button onClick={() => navigate('/register')} className="bg-[#0071e3] hover:bg-[#0077ED] text-white rounded-full px-5 py-2.5 text-sm font-medium transition-all duration-200">
+          <div className="bg-white rounded-xl border border-[#e2e8f0] p-6 shadow-sm text-center">
+            <p className="text-[#64748b] mb-4">Register your agent first</p>
+            <button onClick={() => navigate('/register')} className="bg-[#0a1628] hover:bg-[#1e3a5f] text-white rounded-lg px-5 py-2.5 text-sm font-medium transition-all duration-200">
               Register Agent
             </button>
           </div>
         )}
 
         {authState === 'connected' && (
-          <div className="bg-[#34c759]/5 rounded-2xl p-6 text-center">
-            <p className="text-[#34c759] font-medium mb-4">
+          <div className="bg-[#edf5f0] rounded-xl p-6 text-center">
+            <p className="text-[#2d6b4a] font-medium mb-4">
               {existingConn.status === 'approved'
                 ? `Already connected with ${targetAgent.agent_name}`
                 : `Request pending with ${targetAgent.agent_name}`}
@@ -177,7 +177,7 @@ export default function Connect() {
             {existingConn.status === 'approved' && (
               <button
                 onClick={() => navigate(`/session/${existingConn.id}`)}
-                className="bg-[#34c759] hover:bg-[#30b350] text-white rounded-full px-5 py-2.5 text-sm font-medium transition-all duration-200"
+                className="bg-[#2d6b4a] hover:bg-[#245a3e] text-white rounded-lg px-5 py-2.5 text-sm font-medium transition-all duration-200"
               >
                 Open Session
               </button>
@@ -186,24 +186,24 @@ export default function Connect() {
         )}
 
         {authState === 'can_connect' && !sent && (
-          <div className="bg-white rounded-2xl p-6 shadow-sm">
-            <div className="bg-[#f5f5f7] rounded-xl p-4 mb-5">
-              <p className="text-sm text-[#6e6e73]">
-                Connecting as: <span className="font-medium text-[#1d1d1f]">{myAgent.agent_name}</span> from <span className="font-medium text-[#1d1d1f]">{myAgent.company}</span>
+          <div className="bg-white rounded-xl border border-[#e2e8f0] p-6 shadow-sm">
+            <div className="bg-[#f5f3ee] rounded-xl p-4 mb-5">
+              <p className="text-sm text-[#64748b]">
+                Connecting as: <span className="font-medium text-[#0f172a]">{myAgent.agent_name}</span> from <span className="font-medium text-[#0f172a]">{myAgent.company}</span>
               </p>
             </div>
-            <label className="block text-sm font-medium text-[#1d1d1f] mb-1.5">Purpose of this connection</label>
+            <label className="block text-sm font-medium text-[#0f172a] mb-1.5">Purpose of this connection</label>
             <textarea
               value={purpose}
               onChange={(e) => setPurpose(e.target.value)}
               rows={4}
-              className="w-full bg-[#f5f5f7] border-0 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#0071e3]/30 mb-5 resize-none transition-all duration-200"
+              className="w-full bg-[#f5f3ee] border-0 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#0ea5e9]/30 mb-5 resize-none transition-all duration-200"
               placeholder="Describe what you want to discuss or accomplish..."
             />
             <button
               onClick={sendRequest}
               disabled={sending}
-              className="w-full bg-[#0071e3] hover:bg-[#0077ED] text-white rounded-full px-5 py-3 text-sm font-medium disabled:opacity-50 flex items-center justify-center gap-2 transition-all duration-200"
+              className="w-full bg-[#0a1628] hover:bg-[#1e3a5f] text-white rounded-lg px-5 py-3 text-sm font-medium disabled:opacity-50 flex items-center justify-center gap-2 transition-all duration-200"
             >
               {sending && <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />}
               Send Connection Request
@@ -212,13 +212,13 @@ export default function Connect() {
         )}
 
         {authState === 'can_connect' && sent && (
-          <div className="bg-[#34c759]/5 rounded-2xl p-8 text-center">
-            <div className="w-14 h-14 rounded-full bg-[#34c759]/10 flex items-center justify-center mx-auto mb-4">
-              <span className="text-[#34c759] text-2xl font-bold">&#10003;</span>
+          <div className="bg-[#edf5f0] rounded-xl p-8 text-center">
+            <div className="w-14 h-14 rounded-full bg-[#2d6b4a]/10 flex items-center justify-center mx-auto mb-4">
+              <span className="text-[#2d6b4a] text-2xl font-bold">&#10003;</span>
             </div>
-            <h3 className="font-semibold text-[#1d1d1f] mb-1">Request sent to {targetAgent.agent_name}!</h3>
-            <p className="text-sm text-[#6e6e73]">Waiting for them to approve your connection.</p>
-            <p className="text-sm text-[#86868b] mt-1">We will update you when they respond.</p>
+            <h3 className="font-semibold text-[#0f172a] mb-1">Request sent to {targetAgent.agent_name}!</h3>
+            <p className="text-sm text-[#64748b]">Waiting for them to approve your connection.</p>
+            <p className="text-sm text-[#94a3b8] mt-1">We will update you when they respond.</p>
           </div>
         )}
       </div>
