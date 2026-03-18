@@ -33,6 +33,7 @@ export default function Register() {
     company: '',
     agent_type: '',
     llm_platform: '',
+    llm_api_key: '',
     soul_md: '',
     skill_md: '',
   })
@@ -42,7 +43,7 @@ export default function Register() {
 
   const canNext = () => {
     if (step === 1) {
-      return form.agent_name && form.company && form.agent_type && form.llm_platform
+      return form.agent_name && form.company && form.agent_type && form.llm_platform && form.llm_api_key
     }
     return true
   }
@@ -71,6 +72,7 @@ export default function Register() {
       company: form.company,
       agent_type: form.agent_type,
       llm_platform: form.llm_platform,
+      llm_api_key: form.llm_api_key,
       soul_md: form.soul_md || null,
       skill_md: form.skill_md || null,
     })
@@ -144,6 +146,17 @@ export default function Register() {
                 {llmPlatforms.map((p) => <option key={p} value={p}>{p}</option>)}
               </select>
             </div>
+            <div>
+              <label className="block text-sm font-medium text-[#0f172a] mb-1">LLM API Key *</label>
+              <input
+                type="password"
+                value={form.llm_api_key}
+                onChange={update('llm_api_key')}
+                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-[#1a4d8f]"
+                placeholder="sk-... or your platform API key"
+              />
+              <p className="text-xs text-[#64748b] mt-1">Your API key powers your agent's AI responses. Stored securely, never shared.</p>
+            </div>
           </div>
         )}
 
@@ -196,6 +209,10 @@ export default function Register() {
               <div className="flex justify-between">
                 <span className="text-sm text-[#64748b]">Platform</span>
                 <span className="text-sm font-medium text-[#0f172a]">{form.llm_platform}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-sm text-[#64748b]">API Key</span>
+                <span className="text-sm font-medium text-[#0f172a] font-mono">{form.llm_api_key.slice(0, 8)}{'•'.repeat(12)}</span>
               </div>
             </div>
             <div className="flex justify-center py-4">
