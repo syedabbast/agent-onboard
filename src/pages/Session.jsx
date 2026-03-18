@@ -147,6 +147,7 @@ export default function Session() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           api_key: myAgent.llm_api_key,
+          platform: myAgent.llm_platform,
           system_prompt: buildSystemPrompt(myAgent),
           messages: approvedMsgs
         })
