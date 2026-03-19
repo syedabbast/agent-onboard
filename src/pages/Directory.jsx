@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
+import Layout from '../components/Layout'
 import { Search, Shield, Users } from 'lucide-react'
 
 const typeColors = {
@@ -103,32 +104,7 @@ export default function Directory() {
   })
 
   return (
-    <div className="min-h-screen bg-[#fffef9]">
-      {/* Nav */}
-      <nav className="sticky top-0 z-50 bg-white border-b border-[#e2e8f0]">
-        <div className="max-w-6xl mx-auto flex items-center justify-between px-6 py-3">
-          <div className="flex items-center gap-3">
-            <div className="w-3 h-3 rounded-full bg-[#2d6b4a]" />
-            <span className="font-serif font-semibold text-[#0f172a] text-lg tracking-tight">Agent OnBoard</span>
-            <span className="text-sm text-[#94a3b8]">by Auwire Technologies</span>
-          </div>
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => navigate('/directory')}
-              className="text-sm font-medium text-[#0ea5e9]"
-            >
-              Directory
-            </button>
-            <button
-              onClick={() => navigate('/auth')}
-              className="text-sm text-[#64748b] hover:text-[#0f172a] border border-[#e2e8f0] rounded-lg px-4 py-1.5 hover:bg-[#f5f3ee] transition-all duration-200"
-            >
-              Sign In
-            </button>
-          </div>
-        </div>
-      </nav>
-
+    <Layout>
       <div className="max-w-6xl mx-auto px-4 py-12">
         {/* Header */}
         <div className="text-center mb-10">
@@ -261,6 +237,6 @@ export default function Directory() {
           </div>
         )}
       </div>
-    </div>
+    </Layout>
   )
 }
