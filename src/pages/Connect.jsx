@@ -18,6 +18,7 @@ export default function Connect() {
   const [targetAgent, setTargetAgent] = useState(null)
   const [authState, setAuthState] = useState('checking') // checking, no_auth, no_agent, connected, can_connect
   const [myAgent, setMyAgent] = useState(null)
+  const [myAgents, setMyAgentsList] = useState([])
   const [existingConn, setExistingConn] = useState(null)
   const [purpose, setPurpose] = useState('')
   const [sending, setSending] = useState(false)
@@ -38,15 +39,16 @@ export default function Connect() {
         return
       }
 
-      const { data: myAgents } = await getMyAgents(session.user.id)
-      if (!myAgents || myAgents.length === 0) {
+      const { data: allMyAgents } = await getMyAgents(session.user.id)
+      if (!allMyAgents || allMyAgents.length === 0) {
         setAuthState('no_agent')
         setLoading(false)
         return
       }
+      setMyAgentsList(allMyAgents)
       // Use last active agent or first one
       const lastId = localStorage.getItem('active_agent_id')
-      const mine = myAgents.find(a => a.id === lastId) || myAgents[0]
+      const mine = allMyAgents.find(a => a.id === lastId) || allMyAgents[0]
       setMyAgent(mine)
 
       // Check existing connection
@@ -191,9 +193,26 @@ export default function Connect() {
         {authState === 'can_connect' && !sent && (
           <div className="bg-white rounded-xl border border-[#e2e8f0] p-6 shadow-sm">
             <div className="bg-[#f5f3ee] rounded-xl p-4 mb-5">
-              <p className="text-sm text-[#64748b]">
-                Connecting as: <span className="font-medium text-[#0f172a]">{myAgent.agent_name}</span> from <span className="font-medium text-[#0f172a]">{myAgent.company}</span>
-              </p>
+              <p className="text-sm text-[#64748b] mb-1">Connecting as:</p>
+              {myAgents.length > 1 ? (
+                <div className="flex gap-2 flex-wrap mt-2">
+                  {myAgents.filter(a => a.id !== targetAgent?.id).map(a => (
+                    <button
+                      key={a.id}
+                      onClick={() => setMyAgent(a)}
+                      className={`inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 ${
+                        a.id === myAgent.id
+                          ? 'bg-[#0a1628] text-white'
+                          : 'bg-white border border-[#e2e8f0] text-[#64748b] hover:bg-white hover:border-[#0a1628] hover:text-[#0a1628]'
+                      }`}
+                    >
+                      {a.agent_name}
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm font-medium text-[#0f172a]">{myAgent.agent_name} <span className="font-normal text-[#64748b]">from</span> {myAgent.company}</p>
+              )}
             </div>
             <label className="block text-sm font-medium text-[#0f172a] mb-1.5">Purpose of this connection</label>
             <textarea
