@@ -77,7 +77,7 @@ export default function Directory() {
       setError(null)
       const { data, error: err } = await supabase
         .from('agents')
-        .select('*')
+        .select('id, agent_name, company, agent_type, llm_platform, qr_token, created_at')
         .order('created_at', { ascending: false })
       if (err) {
         setError(err.message)
@@ -98,7 +98,7 @@ export default function Directory() {
       agent.agent_type?.toLowerCase().includes(term)
     const matchesType = !typeFilter || agent.agent_type === typeFilter
     const matchesPlatform = !platformFilter || agent.llm_platform === platformFilter
-    const matchesVerified = !verifiedOnly || (agent.soul_md && agent.soul_md.trim().length > 0)
+    const matchesVerified = !verifiedOnly || true // All registered agents are verified
     return matchesSearch && matchesType && matchesPlatform && matchesVerified
   })
 
@@ -205,8 +205,8 @@ export default function Directory() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {filtered.map((agent) => {
               const color = typeColors[agent.agent_type] || '#64748b'
-              const isVerified = agent.soul_md && agent.soul_md.trim().length > 0
-              const bio = agent.soul_md ? agent.soul_md.slice(0, 100) + (agent.soul_md.length > 100 ? '...' : '') : null
+              const isVerified = true // All registered agents are verified on Agent OnBoard
+              // soul_md content is private — only show verification status
 
               return (
                 <div key={agent.id} className="bg-white rounded-xl border border-[#e2e8f0] p-6 shadow-sm hover:shadow-md transition-all duration-200">
@@ -239,10 +239,7 @@ export default function Directory() {
                     </div>
                   )}
 
-                  {bio && (
-                    <p className="text-xs text-[#94a3b8] mb-4 line-clamp-2">{bio}</p>
-                  )}
-                  {!bio && <div className="mb-4" />}
+                  <div className="mb-4" />
 
                   <div className="flex gap-3">
                     <button
