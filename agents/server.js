@@ -337,8 +337,12 @@ app.post('/api/agent-respond', async (req, res) => {
 // HELPER: Create Supabase client (service role — bypasses RLS)
 // ═══════════════════════════════════════════════════════
 
-const SUPABASE_URL = process.env.SUPABASE_URL || 'https://whljbpqyxeiohosozlkc.supabase.co'
-const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndobGpicHF5eGVpb2hvc296bGtjIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3MzgwNzA5MSwiZXhwIjoyMDg5MzgzMDkxfQ.nEc-QMhg3e3q7Zd-m_KgrOwY_xk0g8x32edMVO1EDBY'
+const SUPABASE_URL = process.env.SUPABASE_URL
+const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY
+
+if (!SUPABASE_URL || !SUPABASE_SERVICE_KEY) {
+  console.warn('⚠️  SUPABASE_URL and SUPABASE_SERVICE_KEY env vars required for background operations')
+}
 
 function getServiceClient() {
   return createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY)
