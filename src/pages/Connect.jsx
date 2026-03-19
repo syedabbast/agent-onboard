@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useSearchParams, useNavigate } from 'react-router-dom'
-import { supabase, getAgentByToken, getMyAgent, logAudit, sendNotification } from '../lib/supabase'
+import { supabase, getAgentByToken, getMyAgents, logAudit, sendNotification } from '../lib/supabase'
 import Spinner from '../components/Spinner'
 import toast from 'react-hot-toast'
 import { Shield } from 'lucide-react'
@@ -38,12 +38,15 @@ export default function Connect() {
         return
       }
 
-      const { data: mine } = await getMyAgent(session.user.id)
-      if (!mine) {
+      const { data: myAgents } = await getMyAgents(session.user.id)
+      if (!myAgents || myAgents.length === 0) {
         setAuthState('no_agent')
         setLoading(false)
         return
       }
+      // Use last active agent or first one
+      const lastId = localStorage.getItem('active_agent_id')
+      const mine = myAgents.find(a => a.id === lastId) || myAgents[0]
       setMyAgent(mine)
 
       // Check existing connection
