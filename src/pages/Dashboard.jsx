@@ -5,7 +5,7 @@ import Layout from '../components/Layout'
 import QRDisplay from '../components/QRDisplay'
 import Spinner from '../components/Spinner'
 import toast from 'react-hot-toast'
-import { Clock, Users, Zap, Shield, Plus, Bot, XCircle, FileText, CheckCircle, Ban } from 'lucide-react'
+import { Clock, Users, Zap, Shield, Plus, Bot, XCircle, FileText, CheckCircle, Ban, Pencil } from 'lucide-react'
 import DocumentManager from '../components/DocumentManager'
 import ApiKeySettings from '../components/ApiKeySettings'
 
@@ -62,6 +62,9 @@ export default function Dashboard() {
   const [reportModal, setReportModal] = useState(null)
   const [reportLoading, setReportLoading] = useState(false)
   const [reportContent, setReportContent] = useState(null)
+  const [editModal, setEditModal] = useState(false)
+  const [editForm, setEditForm] = useState({})
+  const [editSaving, setEditSaving] = useState(false)
   const navigate = useNavigate()
 
   const loadData = async (selectedAgent) => {
@@ -327,7 +330,40 @@ RECOMMENDATION: (1 sentence recommendation for future connections)`
     toast.success('Report downloaded')
   }
 
-  // toggleAutoRespond removed — now handled by ApiKeySettings component
+  const openEditModal = () => {
+    setEditForm({
+      agent_name: agent.agent_name || '',
+      company: agent.company || '',
+      agent_type: agent.agent_type || '',
+      llm_platform: agent.llm_platform || '',
+      soul_md: agent.soul_md || '',
+      skill_md: agent.skill_md || '',
+    })
+    setEditModal(true)
+  }
+
+  const saveEdit = async () => {
+    setEditSaving(true)
+    const { error } = await supabase
+      .from('agents')
+      .update({
+        agent_name: editForm.agent_name,
+        company: editForm.company,
+        agent_type: editForm.agent_type,
+        llm_platform: editForm.llm_platform,
+        soul_md: editForm.soul_md || null,
+        skill_md: editForm.skill_md || null,
+      })
+      .eq('id', agent.id)
+    if (error) {
+      toast.error(error.message)
+    } else {
+      toast.success('Agent updated!')
+      setEditModal(false)
+      await loadAgents()
+    }
+    setEditSaving(false)
+  }
 
   if (loading) {
     return (
@@ -401,6 +437,13 @@ RECOMMENDATION: (1 sentence recommendation for future connections)`
                 </span>
               </div>
 
+              <button
+                onClick={openEditModal}
+                className="mt-4 w-full flex items-center justify-center gap-2 bg-[#f5f3ee] hover:bg-[#e8e5de] text-[#0f172a] rounded-lg px-4 py-2.5 text-sm font-medium transition-all duration-200"
+              >
+                <Pencil className="w-3.5 h-3.5" />
+                Edit Agent
+              </button>
             </div>
 
             {/* LLM Settings */}
@@ -727,6 +770,116 @@ RECOMMENDATION: (1 sentence recommendation for future connections)`
                 </div>
               </div>
             ) : null}
+          </div>
+        </div>
+      )}
+
+      {/* Edit Agent Modal */}
+      {editModal && (
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 px-4">
+          <div className="bg-white rounded-xl p-6 max-w-lg w-full shadow-2xl max-h-[85vh] overflow-y-auto">
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-[#0a1628] flex items-center justify-center">
+                  <Pencil className="w-4 h-4 text-[#f59e0b]" />
+                </div>
+                <div>
+                  <h3 className="font-serif font-semibold text-[#0f172a] text-lg">Edit Agent</h3>
+                  <p className="text-xs text-[#94a3b8]">Update your agent's profile and identity</p>
+                </div>
+              </div>
+              <button onClick={() => setEditModal(false)} className="text-[#94a3b8] hover:text-[#0f172a] transition-colors">
+                <XCircle className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-[#0f172a] mb-1.5">Agent Name</label>
+                <input
+                  value={editForm.agent_name}
+                  onChange={(e) => setEditForm({ ...editForm, agent_name: e.target.value })}
+                  className="w-full bg-[#f5f3ee] border-0 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#0ea5e9]/30"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-[#0f172a] mb-1.5">Company Name</label>
+                <input
+                  value={editForm.company}
+                  onChange={(e) => setEditForm({ ...editForm, company: e.target.value })}
+                  className="w-full bg-[#f5f3ee] border-0 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#0ea5e9]/30"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-[#0f172a] mb-1.5">Agent Type</label>
+                  <select
+                    value={editForm.agent_type}
+                    onChange={(e) => setEditForm({ ...editForm, agent_type: e.target.value })}
+                    className="w-full bg-[#f5f3ee] border-0 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#0ea5e9]/30"
+                  >
+                    {['Employer / Hiring','Staffing Agency','Legal / Paralegal','Medical Practice','Solopreneur','Procurement','Other'].map(t => (
+                      <option key={t} value={t}>{t}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-[#0f172a] mb-1.5">LLM Platform</label>
+                  <select
+                    value={editForm.llm_platform}
+                    onChange={(e) => setEditForm({ ...editForm, llm_platform: e.target.value })}
+                    className="w-full bg-[#f5f3ee] border-0 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#0ea5e9]/30"
+                  >
+                    {['OpenAI (GPT)','Microsoft Copilot','Google Gemini','Claude (Anthropic)','OpenClaw','LangChain','Other'].map(p => (
+                      <option key={p} value={p}>{p}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-[#0f172a] mb-1.5">
+                  Agent Identity (soul.md)
+                  <span className="ml-2 text-xs text-[#94a3b8] font-normal">Private — only you can see this</span>
+                </label>
+                <textarea
+                  value={editForm.soul_md}
+                  onChange={(e) => setEditForm({ ...editForm, soul_md: e.target.value })}
+                  rows={5}
+                  className="w-full bg-[#f5f3ee] border-0 rounded-lg px-4 py-3 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-[#0ea5e9]/30 resize-none"
+                  placeholder="Define your agent's identity, authority, and rules..."
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-[#0f172a] mb-1.5">
+                  Agent Capabilities (skill.md)
+                  <span className="ml-2 text-xs text-[#94a3b8] font-normal">Private — only you can see this</span>
+                </label>
+                <textarea
+                  value={editForm.skill_md}
+                  onChange={(e) => setEditForm({ ...editForm, skill_md: e.target.value })}
+                  rows={5}
+                  className="w-full bg-[#f5f3ee] border-0 rounded-lg px-4 py-3 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-[#0ea5e9]/30 resize-none"
+                  placeholder="Define what your agent can share, cannot share, and requires approval for..."
+                />
+              </div>
+            </div>
+
+            <div className="flex gap-3 justify-end mt-6">
+              <button
+                onClick={() => setEditModal(false)}
+                className="bg-[#f5f3ee] hover:bg-[#e8e5de] text-[#0f172a] rounded-lg px-5 py-2.5 text-sm font-medium transition-all duration-200"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={saveEdit}
+                disabled={editSaving || !editForm.agent_name || !editForm.company}
+                className="bg-[#0a1628] hover:bg-[#1e3a5f] text-white rounded-lg px-5 py-2.5 text-sm font-medium disabled:opacity-50 flex items-center gap-2 transition-all duration-200"
+              >
+                {editSaving && <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />}
+                Save Changes
+              </button>
+            </div>
           </div>
         </div>
       )}
