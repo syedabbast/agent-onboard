@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { supabase, getMyAgent, timeAgo } from '../lib/supabase'
+import { supabase, getMyAgents, timeAgo } from '../lib/supabase'
 import Layout from '../components/Layout'
 import Spinner from '../components/Spinner'
 
@@ -29,9 +29,8 @@ export default function Audit() {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) { navigate('/auth'); return }
 
-      const { data: mine } = await getMyAgent(user.id)
-      if (!mine) { navigate('/register'); return }
-      setMyAgent(mine)
+      const { data: myAgents } = await getMyAgents(user.id)
+      if (!myAgents || myAgents.length === 0) { navigate('/register'); return }
 
       const { data: conn } = await supabase
         .from('connections')
@@ -39,10 +38,12 @@ export default function Audit() {
         .eq('id', id)
         .single()
 
-      if (!conn || (conn.requester_agent_id !== mine.id && conn.target_agent_id !== mine.id)) {
+      const mine = myAgents.find(a => a.id === conn?.requester_agent_id || a.id === conn?.target_agent_id)
+      if (!conn || !mine) {
         navigate('/dashboard')
         return
       }
+      setMyAgent(mine)
       setConnection(conn)
 
       const agentMap = {}
