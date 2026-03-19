@@ -5,9 +5,11 @@ import Layout from '../components/Layout'
 import QRDisplay from '../components/QRDisplay'
 import Spinner from '../components/Spinner'
 import toast from 'react-hot-toast'
-import { Clock, Users, Zap, Shield, Plus, Bot, XCircle, FileText, CheckCircle, Ban, Pencil } from 'lucide-react'
+import { Clock, Users, Zap, Shield, Plus, Bot, XCircle, FileText, CheckCircle, Ban, Pencil, ClipboardList, Download, AlertTriangle, ArrowRight, Calendar } from 'lucide-react'
 import DocumentManager from '../components/DocumentManager'
 import ApiKeySettings from '../components/ApiKeySettings'
+
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001'
 
 function DashboardSkeleton() {
   return (
@@ -65,6 +67,10 @@ export default function Dashboard() {
   const [editModal, setEditModal] = useState(false)
   const [editForm, setEditForm] = useState({})
   const [editSaving, setEditSaving] = useState(false)
+  const [workflowModal, setWorkflowModal] = useState(null)
+  const [workflowLoading, setWorkflowLoading] = useState(false)
+  const [workflowData, setWorkflowData] = useState(null)
+  const [workflowCache, setWorkflowCache] = useState({})
   const navigate = useNavigate()
 
   const loadData = async (selectedAgent) => {
@@ -109,6 +115,28 @@ export default function Dashboard() {
         counts[conn.id] = count || 0
       }
       setUnapprovedCounts(counts)
+    }
+
+    // Preload workflow reports for completed connections
+    if (closed && closed.length > 0) {
+      const completedIds = closed.filter(c => c.status === 'completed').map(c => c.id)
+      if (completedIds.length > 0) {
+        const { data: reports } = await supabase
+          .from('audit_log')
+          .select('*')
+          .in('connection_id', completedIds)
+          .eq('action', 'session_report')
+          .order('created_at', { ascending: false })
+        if (reports) {
+          const cache = {}
+          for (const r of reports) {
+            if (!cache[r.connection_id] && r.metadata) {
+              cache[r.connection_id] = r.metadata
+            }
+          }
+          setWorkflowCache(prev => ({ ...prev, ...cache }))
+        }
+      }
     }
   }
 
@@ -170,6 +198,18 @@ export default function Dashboard() {
     if (conn.requester?.user_email) {
       sendNotification('connection_approved', conn.requester.user_email, agent.agent_name, agent.company, conn.id)
     }
+
+    // Kick off background conversation
+    fetch(`${API_URL}/api/run-session`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        connection_id: conn.id,
+        supabase_url: import.meta.env.VITE_SUPABASE_URL,
+        supabase_key: import.meta.env.VITE_SUPABASE_ANON_KEY
+      })
+    }).catch(() => {}) // Fire and forget
+    toast.success('Agents are now talking in the background!')
 
     await loadData()
     setActionLoading(null)
@@ -363,6 +403,81 @@ RECOMMENDATION: (1 sentence recommendation for future connections)`
       await loadAgents()
     }
     setEditSaving(false)
+  }
+
+  const loadWorkflow = async (conn) => {
+    setWorkflowModal(conn)
+    setWorkflowLoading(true)
+    setWorkflowData(null)
+
+    // Check cache first
+    if (workflowCache[conn.id]) {
+      setWorkflowData(workflowCache[conn.id])
+      setWorkflowLoading(false)
+      return
+    }
+
+    // Try to load from audit_log
+    const { data: reports } = await supabase
+      .from('audit_log')
+      .select('*')
+      .eq('connection_id', conn.id)
+      .eq('action', 'session_report')
+      .order('created_at', { ascending: false })
+      .limit(1)
+
+    if (reports && reports.length > 0 && reports[0].metadata) {
+      const report = reports[0].metadata
+      setWorkflowData(report)
+      setWorkflowCache(prev => ({ ...prev, [conn.id]: report }))
+      setWorkflowLoading(false)
+      return
+    }
+
+    // No report found, try to generate one
+    if (agent.llm_api_key) {
+      try {
+        const res = await fetch(`${API_URL}/api/generate-report`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            connection_id: conn.id,
+            supabase_url: import.meta.env.VITE_SUPABASE_URL,
+            supabase_key: import.meta.env.VITE_SUPABASE_ANON_KEY
+          })
+        })
+        if (res.ok) {
+          const { report } = await res.json()
+          if (report) {
+            setWorkflowData(report)
+            setWorkflowCache(prev => ({ ...prev, [conn.id]: report }))
+          }
+        }
+      } catch {}
+    }
+
+    setWorkflowLoading(false)
+  }
+
+  const downloadWorkflow = () => {
+    if (!workflowData || !workflowModal) return
+    const blob = new Blob([JSON.stringify(workflowData, null, 2)], { type: 'application/json' })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `workflow-${workflowModal.id.slice(0, 8)}.json`
+    link.click()
+    URL.revokeObjectURL(url)
+    toast.success('Workflow downloaded')
+  }
+
+  const getOutcomeBadge = (outcome) => {
+    if (!outcome) return null
+    const o = outcome.toLowerCase()
+    if (o.includes('agreement') || o.includes('partnership')) return { bg: 'bg-[#edf5f0]', text: 'text-[#2d6b4a]', label: outcome }
+    if (o.includes('follow-up') || o.includes('follow_up') || o.includes('referral') || o.includes('information')) return { bg: 'bg-[#fef3c7]', text: 'text-[#92400e]', label: outcome }
+    if (o.includes('no-match') || o.includes('no_match')) return { bg: 'bg-[#ff3b30]/10', text: 'text-[#ff3b30]', label: outcome }
+    return { bg: 'bg-[#0ea5e9]/10', text: 'text-[#0ea5e9]', label: outcome }
   }
 
   if (loading) {
@@ -607,6 +722,8 @@ RECOMMENDATION: (1 sentence recommendation for future connections)`
                 <div className="space-y-3">
                   {closedConnections.map((conn) => {
                     const other = otherAgent(conn)
+                    const cachedWorkflow = workflowCache[conn.id]
+                    const outcomeBadge = cachedWorkflow ? getOutcomeBadge(cachedWorkflow.outcome) : null
                     return (
                       <div key={conn.id} className="bg-white rounded-xl border border-[#e2e8f0] p-5 shadow-sm hover:shadow-md transition-shadow duration-200 opacity-90">
                         <div className="flex items-center justify-between">
@@ -622,6 +739,11 @@ RECOMMENDATION: (1 sentence recommendation for future connections)`
                                   <Ban className="w-3 h-3" /> Revoked
                                 </span>
                               )}
+                              {outcomeBadge && (
+                                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${outcomeBadge.bg} ${outcomeBadge.text}`}>
+                                  {outcomeBadge.label}
+                                </span>
+                              )}
                             </div>
                             <p className="text-sm text-[#64748b]">{other?.company}</p>
                             <div className="flex gap-2 mt-2 flex-wrap">
@@ -630,8 +752,34 @@ RECOMMENDATION: (1 sentence recommendation for future connections)`
                             </div>
                             {conn.purpose && <p className="text-xs text-[#94a3b8] mt-1 italic">"{conn.purpose}"</p>}
                             <p className="text-xs text-[#94a3b8] mt-1">{timeAgo(conn.created_at)}</p>
+                            {/* Workflow summary card */}
+                            {cachedWorkflow && (
+                              <div className="mt-2 flex items-center gap-2">
+                                {cachedWorkflow.action_items?.length > 0 && (
+                                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#0a1628]/5 text-[#0a1628]">
+                                    <ClipboardList className="w-3 h-3" />
+                                    {cachedWorkflow.action_items.length} action item{cachedWorkflow.action_items.length > 1 ? 's' : ''}
+                                  </span>
+                                )}
+                                {cachedWorkflow.follow_up_date && (
+                                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#f59e0b]/10 text-[#92400e]">
+                                    <Calendar className="w-3 h-3" />
+                                    {cachedWorkflow.follow_up_date}
+                                  </span>
+                                )}
+                              </div>
+                            )}
                           </div>
                           <div className="flex gap-2 flex-shrink-0">
+                            {conn.status === 'completed' && (
+                              <button
+                                onClick={() => loadWorkflow(conn)}
+                                className="bg-[#0a1628] hover:bg-[#1e3a5f] text-white rounded-lg px-5 py-2 text-sm font-medium transition-all duration-200 flex items-center gap-1.5"
+                              >
+                                <ClipboardList className="w-3.5 h-3.5" />
+                                Workflow
+                              </button>
+                            )}
                             <button
                               onClick={() => generateReport(conn)}
                               className="bg-[#0ea5e9] hover:bg-[#0284c7] text-white rounded-lg px-5 py-2 text-sm font-medium transition-all duration-200 flex items-center gap-1.5"
@@ -770,6 +918,186 @@ RECOMMENDATION: (1 sentence recommendation for future connections)`
                 </div>
               </div>
             ) : null}
+          </div>
+        </div>
+      )}
+
+      {/* Workflow Modal */}
+      {workflowModal && (
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 px-4">
+          <div className="bg-white rounded-xl p-6 max-w-2xl w-full shadow-2xl max-h-[85vh] overflow-y-auto">
+            <div className="flex items-center justify-between mb-5">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-[#0a1628] flex items-center justify-center">
+                  <ClipboardList className="w-5 h-5 text-[#f59e0b]" />
+                </div>
+                <div>
+                  <h3 className="font-serif font-semibold text-[#0a1628] text-lg">Workflow Report</h3>
+                  <p className="text-xs text-[#94a3b8]">{workflowModal.id.slice(0, 8)} — {otherAgent(workflowModal)?.agent_name}</p>
+                </div>
+              </div>
+              <button
+                onClick={() => { setWorkflowModal(null); setWorkflowData(null) }}
+                className="text-[#94a3b8] hover:text-[#0f172a] transition-colors"
+              >
+                <XCircle className="w-5 h-5" />
+              </button>
+            </div>
+
+            {workflowLoading ? (
+              <div className="py-12 text-center">
+                <div className="w-8 h-8 border-[3px] border-[#0a1628]/20 border-t-[#0a1628] rounded-full animate-spin mx-auto mb-3" />
+                <p className="text-[#64748b] text-sm">Loading workflow report...</p>
+              </div>
+            ) : workflowData ? (
+              <div className="space-y-4">
+                {/* Summary */}
+                <div className="bg-[#0a1628]/5 rounded-xl p-4 border border-[#0a1628]/10">
+                  <p className="text-xs font-serif font-medium text-[#0a1628] uppercase tracking-wider mb-1">Summary</p>
+                  <p className="text-sm text-[#0f172a]">{workflowData.summary}</p>
+                </div>
+
+                {/* Outcome Badge */}
+                {workflowData.outcome && (() => {
+                  const badge = getOutcomeBadge(workflowData.outcome)
+                  return badge ? (
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-serif font-medium text-[#0a1628] uppercase tracking-wider">Outcome:</span>
+                      <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${badge.bg} ${badge.text}`}>
+                        {badge.label}
+                      </span>
+                    </div>
+                  ) : null
+                })()}
+
+                {/* Key Topics */}
+                {workflowData.key_topics?.length > 0 && (
+                  <div className="bg-[#f5f3ee] rounded-xl p-4">
+                    <p className="text-xs font-serif font-medium text-[#0a1628] uppercase tracking-wider mb-2">Key Topics</p>
+                    <div className="flex flex-wrap gap-2">
+                      {workflowData.key_topics.map((topic, i) => (
+                        <span key={i} className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-white text-[#0f172a] border border-[#e2e8f0]">
+                          {topic}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Action Items */}
+                {workflowData.action_items?.length > 0 && (
+                  <div className="bg-[#f5f3ee] rounded-xl p-4">
+                    <p className="text-xs font-serif font-medium text-[#0a1628] uppercase tracking-wider mb-3">Action Items</p>
+                    <div className="space-y-2">
+                      {workflowData.action_items.map((item, i) => (
+                        <div key={i} className="flex items-start gap-3 bg-white rounded-lg p-3 border border-[#e2e8f0]">
+                          <div className="w-5 h-5 mt-0.5 rounded border-2 border-[#0a1628]/20 flex-shrink-0 flex items-center justify-center">
+                            <span className="text-xs text-[#94a3b8]">{i + 1}</span>
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium text-[#0f172a]">{item.action}</p>
+                            <div className="flex items-center gap-3 mt-1">
+                              <span className="text-xs text-[#64748b]">Owner: <span className="font-medium text-[#0a1628]">{item.owner}</span></span>
+                              {item.deadline && (
+                                <span className="inline-flex items-center gap-1 text-xs text-[#f59e0b]">
+                                  <Calendar className="w-3 h-3" />
+                                  {item.deadline}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Workflow Next Steps */}
+                {workflowData.workflow_next_steps?.length > 0 && (
+                  <div className="bg-[#0a1628]/5 rounded-xl p-4 border border-[#0a1628]/10">
+                    <p className="text-xs font-serif font-medium text-[#0a1628] uppercase tracking-wider mb-3">Workflow Next Steps</p>
+                    <div className="space-y-2">
+                      {workflowData.workflow_next_steps.map((step, i) => (
+                        <div key={i} className="flex items-start gap-3">
+                          <div className="w-7 h-7 rounded-full bg-[#0a1628] text-white flex items-center justify-center flex-shrink-0 text-xs font-bold">
+                            {step.step || i + 1}
+                          </div>
+                          <div className="flex-1 pt-1">
+                            <p className="text-sm text-[#0f172a]">{step.description}</p>
+                            {step.responsible && (
+                              <p className="text-xs text-[#64748b] mt-0.5 flex items-center gap-1">
+                                <ArrowRight className="w-3 h-3" />
+                                {step.responsible}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Follow-up Date */}
+                {workflowData.follow_up_date && (
+                  <div className="bg-[#fef3c7] rounded-xl p-4 flex items-center gap-3">
+                    <Calendar className="w-5 h-5 text-[#f59e0b]" />
+                    <div>
+                      <p className="text-xs font-serif font-medium text-[#92400e] uppercase tracking-wider">Follow-up Date</p>
+                      <p className="text-sm font-medium text-[#92400e]">{workflowData.follow_up_date}</p>
+                    </div>
+                  </div>
+                )}
+
+                {/* Recommendation */}
+                {workflowData.recommendation && (
+                  <div className="bg-[#0ea5e9]/5 rounded-xl p-4 border border-[#0ea5e9]/20">
+                    <p className="text-xs font-serif font-medium text-[#0ea5e9] uppercase tracking-wider mb-1">Recommendation</p>
+                    <p className="text-sm text-[#0f172a]">{workflowData.recommendation}</p>
+                  </div>
+                )}
+
+                {/* Risk Flags */}
+                {workflowData.risk_flags?.length > 0 && workflowData.risk_flags[0] !== '' && (
+                  <div className="bg-[#ff3b30]/5 rounded-xl p-4 border border-[#ff3b30]/20">
+                    <p className="text-xs font-serif font-medium text-[#ff3b30] uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                      <AlertTriangle className="w-3.5 h-3.5" />
+                      Risk Flags
+                    </p>
+                    <ul className="space-y-1">
+                      {workflowData.risk_flags.map((flag, i) => (
+                        <li key={i} className="text-sm text-[#ff3b30]/80 flex items-start gap-2">
+                          <span className="text-[#ff3b30] mt-1">-</span>
+                          {flag}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {/* Actions */}
+                <div className="flex gap-3 pt-2">
+                  <button
+                    onClick={downloadWorkflow}
+                    className="bg-[#0a1628] hover:bg-[#1e3a5f] text-white rounded-lg px-5 py-2.5 text-sm font-medium transition-all duration-200 flex items-center gap-1.5"
+                  >
+                    <Download className="w-4 h-4" />
+                    Download Workflow
+                  </button>
+                  <button
+                    onClick={() => navigate(`/audit/${workflowModal.id}`)}
+                    className="bg-[#f5f3ee] hover:bg-[#e8e5de] text-[#0f172a] rounded-lg px-5 py-2.5 text-sm font-medium transition-all duration-200"
+                  >
+                    View Full Audit
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="py-12 text-center">
+                <ClipboardList className="w-10 h-10 mx-auto text-[#94a3b8]/30 mb-3" />
+                <p className="text-[#64748b] font-medium">No workflow report available</p>
+                <p className="text-sm text-[#94a3b8] mt-1">Reports are generated when background sessions complete</p>
+              </div>
+            )}
           </div>
         </div>
       )}
