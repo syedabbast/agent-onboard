@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      width: 320px;
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: #0a1628;
+      color: #e2e8f0;
+      font-size: 13px;
+    }
+    .header {
+      background: linear-gradient(135deg, #0f2345, #1a365d);
+      padding: 14px 16px;
+      border-bottom: 1px solid #2d4a7a;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .header h1 {
+      font-size: 15px;
+      font-weight: 600;
+      color: #f7fafc;
+    }
+    .header .icon { font-size: 20px; }
+
+    .status-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 16px;
+      background: #0d1f3c;
+      border-bottom: 1px solid #1a365d;
+      font-size: 12px;
+    }
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #718096;
+      flex-shrink: 0;
+    }
+    .status-dot.active { background: #48bb78; box-shadow: 0 0 6px #48bb78; }
+
+    .section {
+      padding: 12px 16px;
+      border-bottom: 1px solid #1a365d;
+    }
+    .section-title {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #a0aec0;
+      margin-bottom: 8px;
+    }
+
+    .approval {
+      display: none;
+      padding: 12px 16px;
+      background: #1a2a4a;
+      border-bottom: 1px solid #2d4a7a;
+    }
+    .approval.visible { display: block; }
+    .approval-action {
+      font-weight: 600;
+      color: #f6ad55;
+      margin-bottom: 6px;
+    }
+    .approval-buttons {
+      display: flex;
+      gap: 8px;
+      margin-top: 8px;
+    }
+    .btn-approve {
+      flex: 1;
+      padding: 6px;
+      border: none;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      background: #48bb78;
+      color: #fff;
+    }
+    .btn-approve:hover { background: #38a169; }
+    .btn-deny {
+      flex: 1;
+      padding: 6px;
+      border: none;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      background: #e53e3e;
+      color: #fff;
+    }
+    .btn-deny:hover { background: #c53030; }
+
+    .toggle-btn {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #2d4a7a;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      background: #1a365d;
+      color: #90cdf4;
+      transition: background 0.2s;
+    }
+    .toggle-btn:hover { background: #2a4a7d; }
+    .toggle-btn.active {
+      background: #2f855a;
+      border-color: #48bb78;
+      color: #f0fff4;
+    }
+
+    .input-group {
+      margin-bottom: 8px;
+    }
+    .input-group label {
+      display: block;
+      font-size: 11px;
+      color: #a0aec0;
+      margin-bottom: 3px;
+    }
+    .input-group input {
+      width: 100%;
+      padding: 6px 8px;
+      border: 1px solid #2d4a7a;
+      border-radius: 4px;
+      background: #0d1f3c;
+      color: #e2e8f0;
+      font-size: 12px;
+      font-family: monospace;
+    }
+    .input-group input:focus {
+      outline: none;
+      border-color: #4299e1;
+    }
+
+    .btn-save {
+      width: 100%;
+      padding: 8px;
+      border: none;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      background: #4299e1;
+      color: #fff;
+      margin-top: 6px;
+    }
+    .btn-save:hover { background: #3182ce; }
+
+    .toast {
+      display: none;
+      padding: 8px 16px;
+      background: #2f855a;
+      color: #f0fff4;
+      font-size: 12px;
+      text-align: center;
+    }
+    .toast.visible { display: block; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <span class="icon">&#129302;</span>
+    <h1>Agent OnBoard Bridge</h1>
+  </div>
+
+  <div class="status-bar">
+    <span id="statusDot" class="status-dot"></span>
+    <span id="statusText">Not monitoring</span>
+  </div>
+
+  <div id="toast" class="toast"></div>
+
+  <div id="approvalSection" class="approval">
+    <div class="section-title">Action Requested</div>
+    <div id="approvalAction" class="approval-action"></div>
+    <div id="approvalDetail" style="font-size: 12px; color: #a0aec0;"></div>
+    <div class="approval-buttons">
+      <button id="btnApprove" class="btn-approve">Approve</button>
+      <button id="btnDeny" class="btn-deny">Deny</button>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Monitor</div>
+    <button id="toggleBtn" class="toggle-btn">Start Monitoring</button>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Settings</div>
+    <div class="input-group">
+      <label>Supabase URL</label>
+      <input id="inputUrl" type="text" placeholder="https://your-project.supabase.co">
+    </div>
+    <div class="input-group">
+      <label>Supabase Anon Key</label>
+      <input id="inputKey" type="password" placeholder="eyJ...">
+    </div>
+    <div class="input-group">
+      <label>Agent ID</label>
+      <input id="inputAgentId" type="text" placeholder="uuid">
+    </div>
+    <button id="btnSave" class="btn-save">Save Settings</button>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

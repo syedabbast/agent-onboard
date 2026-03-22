@@ -1,0 +1,32 @@
+{
+  "manifest_version": 3,
+  "name": "Agent OnBoard Bridge",
+  "version": "1.0.0",
+  "description": "Connects Agent OnBoard sessions to Chrome for browser automation tasks.",
+  "permissions": [
+    "activeTab",
+    "tabs",
+    "storage",
+    "notifications",
+    "scripting"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "*://*.auwiretech.com/*",
+        "http://localhost/*",
+        "http://localhost:*/*"
+      ],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Agent OnBoard Bridge"
+  },
+  "icons": {}
+}
